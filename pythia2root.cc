@@ -24,16 +24,17 @@ int main(int argc, char ** argv) {
     return 0;
   }
 
+  bool verbose = false;
+
   char * configfile = argv[1];
   char * outfile = argv[2];
   unsigned int nEvents = atol(argv[3]);
 
   // Define the AK8 jet finder.
-  double R = 0.8, ptmin = 170.0;
+  double R = 0.8, ptmin = 170.0, lepfrac = 0.9;
   fastjet::JetDefinition jet_def(fastjet::antikt_algorithm, R);
 
-  // Create Pythia instance and set it up to generate hard QCD processes
-  // above pTHat = 20 GeV for pp collisions at 14 TeV.
+  // Create Pythia instance. Read config from a text file. 
   Pythia pythia;
   std::ifstream config( configfile );
   while (!config.eof() ) {
@@ -48,8 +49,8 @@ int main(int argc, char ** argv) {
   // Set up the ROOT TFile and TTree.
   TFile *file = TFile::Open(outfile,"recreate");
   Event *event = &pythia.event;
-  const Int_t kMaxJet = 5;
-  const Int_t kMaxParticle = 100;
+  const Int_t kMaxJet = 3;                        // Stores leading 3 jets
+  const Int_t kMaxParticle = 500;                 // and up to 500 of their constituents (pt ordered by jet)
   Int_t nJet;
   Float_t jet_pt[kMaxJet];
   Float_t jet_eta[kMaxJet];
@@ -59,7 +60,7 @@ int main(int argc, char ** argv) {
   Int_t nParticle;
   Int_t   jet_ndx[kMaxParticle];
   Int_t   particle_ndx[kMaxParticle];
-  TTree *T = new TTree("T","ev1 Tree");
+  TTree * T = new TTree("T","ev1 Tree");         // Allocate the tree, but DO NOT DELETE IT since ROOT takes ownership magically. 
   T->Branch("event",&event);
   T->Branch("nJet",    &nJet,  "nJet/I");
   T->Branch("nParticle",    &nParticle,  "nParticle/I");
@@ -74,6 +75,8 @@ int main(int argc, char ** argv) {
  // Begin event loop. Generate event; skip if generation aborted.
   for (int iEvent = 0; iEvent < nEvents; ++iEvent) {
     if (!pythia.next()) continue;
+    if ( verbose ) 
+      std::cout << "Generating event " << iEvent << std::endl;
 
     nJet=0;
     nParticle=0;
@@ -96,32 +99,73 @@ int main(int argc, char ** argv) {
     }
     fastjet::ClusterSequence cs(fj_particles, jet_def);
     std::vector<fastjet::PseudoJet> jets = fastjet::sorted_by_pt(cs.inclusive_jets(ptmin));
-    nJet = jets.size();
+
+    nJet = 0;
     if ( jets.size() > 0 ) {
-      auto ibegin=jets.begin();
-      for ( auto ijet=ibegin;ijet!=jets.end();++ijet ) {
-	if ( ijet - ibegin < kMaxJet ) {
-	  jet_pt[ijet - ibegin]=ijet->perp();
-	  jet_eta[ijet - ibegin]=ijet->eta();
-	  jet_phi[ijet - ibegin]=ijet->phi();
-	  jet_m[ijet - ibegin]=ijet->m();
-	  jet_nc[ijet - ibegin] = ijet->constituents().size();
-	  if ( ijet->constituents().size() > 0 ) {
-	    auto jbegin = ijet->constituents().begin();
-	    for ( auto iparticle=jbegin; iparticle != ijet->constituents().end();++iparticle ){
-	      if ( iparticle-jbegin < kMaxParticle ) {
-		auto index = iparticle->user_index();
-		particle_ndx[nParticle] = index;     // remember : postincrement means nParticle=0 first, then increments to 1
-		jet_ndx[nParticle++] = ijet-ibegin;    //            so for the first one we don't increment, the second we postincrment
-	      }
+      auto ibegin = jets.begin();
+      auto iend = jets.end();      
+      for ( auto ijet=ibegin;ijet!=iend;++ijet ) {
+	auto constituents = ijet->constituents();
+
+	// Get the fraction of the jet originating from leptons.
+	// This is to remove jets that are comprised entirely of isolated leptons
+	// such as Z->ll.
+	// We ignore jets with >90% of their energy from leptons. 
+	unsigned nlepton = 0;
+	auto lepp4 = fastjet::PseudoJet();
+	for ( auto icon = constituents.begin(); icon != constituents.end(); ++icon ) {
+	  auto const & py8part = pythia.event[ icon->user_index() ];
+	  if ( std::abs( py8part.id() ) > 10 && std::abs(py8part.id()) < 16)
+	    lepp4 += *icon;
+	}
+	if ( lepp4.e() / ijet->e() > lepfrac){
+	  continue;
+	}
+
+	if ( verbose ) 
+	  std::cout << "getting constituents for jet with pt " << ijet->pt() << ", nc = " << ijet->constituents().size() << std::endl;
+	if ( nJet < kMaxJet ) { 
+	  
+	  jet_pt[nJet]=ijet->perp();
+	  jet_eta[nJet]=ijet->eta();
+	  jet_phi[nJet]=ijet->phi();
+	  jet_m[nJet]=ijet->m();
+	  jet_nc[nJet] = constituents.size();
+	  ++nJet;
+	  
+	  if ( constituents.size() > 0 && nParticle + constituents.size() < kMaxParticle ) {	    
+	    auto jbegin = constituents.begin();
+	    auto jend = constituents.end();
+	    for ( auto iparticle=jbegin; iparticle != jend;++iparticle ){
+	      
+	      auto index = iparticle->user_index();
+	      particle_ndx[nParticle] = index;
+	      jet_ndx[nParticle] = ijet-ibegin;
+	      ++nParticle;
 	    }
+	  } else {
+	    std::cout << "In event " << iEvent << ", too many particles to write out, ignoring constituents from jet " << ijet-ibegin << std::endl;
+	    // std::cout << "jets size: " << jets.size() << std::endl;
+	    // std::cout << "     ijet: " << ijet - ibegin << std::endl;
+	    // std::cout << "     nJet: " << nJet << std::endl;
+	    // std::cout << "       nc: " << constituents.size() << std::endl;
+	    // for ( auto prjet = ibegin; prjet != iend; ++prjet ) {
+	    //   char buff[1000];
+	    //   sprintf(buff, "   %6d %6.2f %6.2f %6.2f %6.2f", prjet - ibegin, prjet->perp(), prjet->eta(), prjet->phi(), prjet->m() );
+	    //   std::cout << buff << std::endl;
+	    // }
+	    // char ci; cin >> ci;
 	  }
 	}
       }
-      if ( jets[0].perp() > 170 ) {
+      if ( verbose ) 
+	std::cout << "About to write" << std::endl;
+      if ( nJet > 0 && jet_pt[0] > 170 ) {
 	// Fill the pythia event into the TTree.
 	T->Fill();
       }
+      if ( verbose ) 
+	std::cout << "Done writing." << std::endl;
     }
 
   // End event loop.
@@ -131,9 +175,9 @@ int main(int argc, char ** argv) {
   pythia.stat();
 
   //  Write tree.
-  T->Print();
   T->Write();
-  delete file;
+  file->Close();
+  // DO NOT delete T. 
 
   // Done.
   return 0;
