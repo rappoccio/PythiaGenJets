@@ -2,7 +2,7 @@
 
 Simple [PYTHIA8](http://home.thep.lu.se/Pythia/) program that uses [fastjet](http://fastjet.fr) to generate events, precluster them with the anti-kt algorithm with R = 0.8, and write events with the leading jet satisfying pt > 170 GeV to a [ROOT](http://root.cern.ch) [TTree](https://root.cern.ch/doc/v608/classTTree.html).
 
-The example generates Z+jets events where the Z decays to electron or muon pairs. The example event size is around 45 kB/event. 
+The example generates Z+jets events where the Z decays to electron or muon pairs. The example event size is around 16 kB/event. 
 
 
 ## Instructions:
@@ -26,11 +26,23 @@ Example:
 Currently we use AK8 jets and store those with pt > 170 GeV, where <90% of the jet's energy arises from leptons.
 The latter is to remove jets comprised almost entirely of isolated leptons (like Z->ll). 
 
-The leading 5 jets are stored, and the first 200 constituents of those 5 jets. 
+The leading 3 jets are stored, and the indices of the first 500 constituents of those 3 jets. 
 
 ## Output TTree structure
 
-The output TTree uses the default PYTHIA8 "Event" for the gen particle information. It also stores the AK8 jets and the indices of their constituents in flat branches. 
+The output TTree uses the default PYTHIA8 "Event" for the gen particle information. It also stores the AK8 jets and the indices of their constituents in flat branches. Here is the structure:
+
+```
+ nJet            = number of jets (ignores lepton-only jets)
+ nParticle       = number of particles in those jets
+ jet_pt          = array of pt
+ jet_eta         = array of eta
+ jet_phi         = array of phi
+ jet_m           = array of m
+ jet_nc          = array of number of constituents per jet
+ particle_ndx    = indices of particles preclustered by jet
+ jet_ndx         = jet "this" particle belongs to. 
+```
 
 ## Citations:
 
