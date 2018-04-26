@@ -8,7 +8,7 @@ The example
 ## Instructions:
 
 ```
-make
+make pythia2root
 ./pythia2root 
 ```
 Output:
@@ -21,6 +21,10 @@ Example:
 ./pythia2root test_run_all.cfg test.root 1000
 ```
 
+
+## Output TTree structure
+
+The output TTree uses the default PYTHIA8 "Event" for the gen particle information. It also stores the AK8 jets and the indices of their constituents in a 
 
 ## Citations:
 
