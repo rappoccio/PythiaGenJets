@@ -21,10 +21,16 @@ Example:
 ./pythia2root test_run_all.cfg test.root 1000
 ```
 
+## Selections for the jets
+
+Currently we use AK8 jets and store those with pt > 170 GeV, where <90% of the jet's energy arises from leptons.
+The latter is to remove jets comprised almost entirely of isolated leptons (like Z->ll). 
+
+The leading 5 jets are stored, and the first 200 constituents of those 5 jets. 
 
 ## Output TTree structure
 
-The output TTree uses the default PYTHIA8 "Event" for the gen particle information. It also stores the AK8 jets and the indices of their constituents in a 
+The output TTree uses the default PYTHIA8 "Event" for the gen particle information. It also stores the AK8 jets and the indices of their constituents in flat branches. 
 
 ## Citations:
 
