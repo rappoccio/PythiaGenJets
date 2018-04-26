@@ -2,7 +2,7 @@
 
 Simple [PYTHIA8](http://home.thep.lu.se/Pythia/) program that uses [fastjet](http://fastjet.fr) to generate events, precluster them with the anti-kt algorithm with R = 0.8, and write events with the leading jet satisfying pt > 170 GeV to a [ROOT](http://root.cern.ch) [TTree](https://root.cern.ch/doc/v608/classTTree.html).
 
-The example 
+The example generates Z+jets events where the Z decays to electron or muon pairs. The example event size is around 45 kB/event. 
 
 
 ## Instructions:
