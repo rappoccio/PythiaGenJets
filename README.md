@@ -7,6 +7,16 @@ The example generates Z+jets events where the Z decays to electron or muon pairs
 
 ## Instructions:
 
+### Example for using Jupyter Notebooks
+
+```
+bash ./runDockerJupyRoot.sh
+```
+
+Then point your local browser to [localhost](http://localhost:8888) and put in the generated token from the previous command. The examples are mounted on your Docker image under `zjets_example`. 
+
+### Command line
+
 ```
 make pythia2root
 ./pythia2root 
