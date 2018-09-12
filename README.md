@@ -17,6 +17,15 @@ Then point your local browser to [localhost](http://localhost:8888) and put in t
 
 ### Command line
 
+To run on the command line with the docker image, do:
+
+```
+bash ./runDockerCommandLine.sh srappoccio/fastjet-tutorial-root:latest
+```
+
+Then subsequently, either on your machine or the docker image you just made:
+
+
 ```
 make pythia2root
 ./pythia2root 
