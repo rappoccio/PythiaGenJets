@@ -13,7 +13,7 @@ The example generates Z+jets events where the Z decays to electron or muon pairs
 bash ./runDockerJupyRoot.sh
 ```
 
-Then point your local browser to [localhost](http://localhost:8888) and put in the generated token from the previous command. The examples are mounted on your Docker image under `zjets_example`. 
+Then point your local browser to [localhost](http://localhost:8888) and put in the generated token from the previous command. The examples are mounted on your Docker image under `zjets_example`. There is a previously generated $Z+$jets sample under `zjets_root.ipynb`, or you can run your own under `plot_zjets.ipynb`. 
 
 ### Command line
 
