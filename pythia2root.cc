@@ -50,18 +50,16 @@ int main(int argc, char ** argv) {
   TFile *file = TFile::Open(outfile,"recreate");
   Event *event = &pythia.event;
   const Int_t kMaxJet = 10;                       // Stores leading 10 jets
-  const Int_t kMaxParticle = 500;                 // and up to 500 of their constituents (pt ordered by jet)
-  const Int_t kMaxGen = 10000;                     // and 2000 of the generator particles
-  Int_t nJet;
+  const Int_t kMaxGen = 10000;                     // and 10000 of the generator particles
+  Int_t nJet=0;
   Float_t jet_pt[kMaxJet];
   Float_t jet_eta[kMaxJet];
   Float_t jet_phi[kMaxJet];
   Float_t jet_m[kMaxJet];
   Int_t   jet_nc[kMaxJet];
-  Int_t nParticle;
-  Int_t   jet_ndx[kMaxParticle];
-  Int_t   particle_ndx[kMaxParticle];  
-  Int_t nGen;
+  Int_t   jet_ic[kMaxJet][50];
+  Int_t nGen=0;
+  Int_t   gen_orig[kMaxGen]; // original index for debugging
   Float_t gen_pt[kMaxGen];
   Float_t gen_eta[kMaxGen];
   Float_t gen_phi[kMaxGen];
@@ -74,22 +72,19 @@ int main(int argc, char ** argv) {
   Int_t   gen_daughter1[kMaxGen];
   Int_t   gen_daughter2[kMaxGen];
   Int_t   gen_col[kMaxGen];
-  Int_t   gen_vxx[kMaxGen];
-  Int_t   gen_vyy[kMaxGen];
-  Int_t   gen_vzz[kMaxGen];
-  Int_t   gen_tau[kMaxGen];
+  Float_t   gen_vxx[kMaxGen];
+  Float_t   gen_vyy[kMaxGen];
+  Float_t   gen_vzz[kMaxGen];
+  Float_t   gen_tau[kMaxGen];
 
   TTree * T = new TTree("T","ev1 Tree");         // Allocate the tree, but DO NOT DELETE IT since ROOT takes ownership magically. 
   T->Branch("nJet",    &nJet,  "nJet/I");
-  T->Branch("nParticle",    &nParticle,  "nParticle/I");
-  
   T->Branch("jet_pt",  &jet_pt,  "jet_pt[nJet]/F");
   T->Branch("jet_eta", &jet_eta, "jet_eta[nJet]/F");
   T->Branch("jet_phi", &jet_phi, "jet_phi[nJet]/F");
   T->Branch("jet_m",   &jet_m,   "jet_m[nJet]/F");
   T->Branch("jet_nc",  &jet_nc,  "jet_nc[nJet]/I");
-  T->Branch("particle_ndx", &particle_ndx, "particle_ndx[nParticle]/I");   // Index of particles clustered. 
-  T->Branch("jet_ndx", &jet_ndx, "jet_ndx[nParticle]/I");                  // Jet this particle came from.
+  T->Branch("jet_ic",  &jet_ic,  "jet_ic[nJet][50]/I");
   T->Branch("nGen",    &nGen,  "nGen/I");
   T->Branch("gen_pt",        &gen_pt,  "gen_pt[nGen]/F");
   T->Branch("gen_eta",       &gen_eta, "gen_eta[nGen]/F");
@@ -103,28 +98,26 @@ int main(int argc, char ** argv) {
   T->Branch("gen_daughter1", &gen_daughter1, "gen_daughter1[nGen]/I");
   T->Branch("gen_daughter2", &gen_daughter2, "gen_daughter2[nGen]/I");
   T->Branch("gen_col",       &gen_col,       "gen_col[nGen]/I"      );
-  T->Branch("gen_vxx",       &gen_vxx,       "gen_vxx[nGen]/I"      );
-  T->Branch("gen_vyy",       &gen_vyy,       "gen_vyy[nGen]/I"      );
-  T->Branch("gen_vzz",       &gen_vzz,       "gen_vzz[nGen]/I"      );
-  T->Branch("gen_tau",       &gen_tau,       "gen_tau[nGen]/I"      );
+  T->Branch("gen_vxx",       &gen_vxx,       "gen_vxx[nGen]/F"      );
+  T->Branch("gen_vyy",       &gen_vyy,       "gen_vyy[nGen]/F"      );
+  T->Branch("gen_vzz",       &gen_vzz,       "gen_vzz[nGen]/F"      );
+  T->Branch("gen_tau",       &gen_tau,       "gen_tau[nGen]/F"      );
 
   
  // Begin event loop. Generate event; skip if generation aborted.
   for (int iEvent = 0; iEvent < nEvents; ++iEvent) {
+    nGen = nJet = 0;
     if (!pythia.next()) continue;
     if ( verbose ) 
       std::cout << "Generating event " << iEvent << std::endl;
-
-    nJet=0;
-    nParticle=0;
-    nGen = 0;
     for ( auto x : jet_pt ) x=0.0;
     for ( auto x : jet_eta ) x=0.0;
     for ( auto x : jet_phi ) x=0.0;
     for ( auto x : jet_m ) x=0.0;
     for ( auto x : jet_nc ) x=0;
-    for ( auto x : particle_ndx ) x=0;
-    for ( auto x : jet_ndx ) x=0;
+    for ( auto i = 0; i < kMaxJet; ++i )
+      for ( auto j = 0; j < 50; ++j )
+	jet_ic[i][j] = 0;
     for ( auto x : gen_pt ) x=0.0;
     for ( auto x : gen_eta ) x=0.0;
     for ( auto x : gen_phi ) x=0.0;
@@ -137,51 +130,63 @@ int main(int argc, char ** argv) {
     for ( auto x : gen_daughter1 ) x = 0;
     for ( auto x : gen_daughter2 ) x = 0;
     for ( auto x : gen_col ) x = 0;
-    for ( auto x : gen_vxx ) x = 0;
-    for ( auto x : gen_vyy ) x = 0;
-    for ( auto x : gen_vzz ) x = 0;
-    for ( auto x : gen_tau ) x = 0;
+    for ( auto x : gen_vxx ) x = 0.;
+    for ( auto x : gen_vyy ) x = 0.;
+    for ( auto x : gen_vzz ) x = 0.;
+    for ( auto x : gen_tau ) x = 0.;
 
     // Dump the PYTHIA8 content.     
     // Create AK8 jets with pt > 170 GeV
     std::vector<fastjet::PseudoJet> fj_particles;
+    std::map<int,int> genmap;
     for (int i = 0; i < event->size(); ++i){
-      if ( i > kMaxGen ){
-	std::cout << "too many particles in event " << iEvent << ", storing first " << kMaxGen << std::endl;
-	continue;
-      }
       auto const & p = pythia.event[i];
-      gen_pt[nGen] = p.pT();
-      gen_eta[nGen] = p.eta();
-      gen_phi[nGen] = p.phi();
-      gen_m[nGen] = p.m();
-      gen_id[nGen] =         p.id();
-      gen_flags[nGen] =      p.isFinal() << 2 | p.isFinalPartonLevel() << 1 | p.isVisible() << 0; 
-      gen_status[nGen] =     p.status();    
-      gen_mother1[nGen] =    p.mother1();   
-      gen_mother2[nGen] =    p.mother2();   
-      gen_daughter1[nGen] =  p.daughter1(); 
-      gen_daughter2[nGen] =  p.daughter2(); 
-      gen_col[nGen] =        p.col();       
-      gen_vxx[nGen] =        p.xProd();       
-      gen_vyy[nGen] =        p.yProd();       
-      gen_vzz[nGen] =        p.zProd();       
-      gen_tau[nGen] =        p.tau();             
-      ++nGen;
-      if ( p.isFinal() ) {
-	
-	fj_particles.emplace_back( p.px(), p.py(), p.pz(), p.e()  );
-	fj_particles.back().set_user_index( i );
+      if ( p.isFinal() || p.isFinalPartonLevel() || p.isResonance() ) {
+	if ( verbose ) {
+	  char buff[1000];
+	  sprintf( buff, "  ndx=%6d, id=%6d, status=%6d, p4=(%6.4f,%6.2f,%6.2f,%6.4f)", i, p.id(), p.status(), p.pT(), p.eta(), p.phi(), p.m() );
+	  std::cout << buff << std::endl; 
+	}
+	gen_pt[nGen] = p.pT();
+	gen_eta[nGen] = p.eta();
+	gen_phi[nGen] = p.phi();
+	gen_m[nGen] = p.m();
+	gen_orig[nGen] = i;
+	gen_id[nGen] =         p.id();
+	gen_flags[nGen] =      p.isFinal() << 2 | p.isFinalPartonLevel() << 1 | p.isVisible() << 0; 
+	gen_status[nGen] =     p.status();    
+	gen_mother1[nGen] =    p.mother1();   
+	gen_mother2[nGen] =    p.mother2();   
+	gen_daughter1[nGen] =  p.daughter1(); 
+	gen_daughter2[nGen] =  p.daughter2(); 
+	gen_col[nGen] =        p.col();       
+	gen_vxx[nGen] =        p.xProd();       
+	gen_vyy[nGen] =        p.yProd();       
+	gen_vzz[nGen] =        p.zProd();       
+	gen_tau[nGen] =        p.tau();             
+	if ( p.isFinal() ) {
+	  fj_particles.emplace_back( p.px(), p.py(), p.pz(), p.e()  );
+	  fj_particles.back().set_user_index( i );
+	  genmap[i] = nGen;
+	} 
+	++nGen;
+	if ( nGen >= kMaxGen ){
+	  std::cout << "too many particles in event " << iEvent << ", storing first " << kMaxGen << std::endl;
+	  break;
+	}	
       }
     }
+    if ( verbose) std::cout << "About to cluster" << std::endl;
     fastjet::ClusterSequence cs(fj_particles, jet_def);
     std::vector<fastjet::PseudoJet> jets = fastjet::sorted_by_pt(cs.inclusive_jets(ptmin));
 
+    if ( verbose ) std::cout << "About to loop over jets" << std::endl;
     nJet = 0;
     if ( jets.size() > 0 ) {
       auto ibegin = jets.begin();
-      auto iend = jets.end();      
+      auto iend = jets.end();
       for ( auto ijet=ibegin;ijet!=iend;++ijet ) {
+	if ( verbose ) std::cout << "processing jet " << ijet - ibegin << std::endl;
 	auto constituents = ijet->constituents();
 
 	// Get the fraction of the jet originating from leptons.
@@ -192,15 +197,30 @@ int main(int argc, char ** argv) {
 	auto lepp4 = fastjet::PseudoJet();
 	for ( auto icon = constituents.begin(); icon != constituents.end(); ++icon ) {
 	  auto const & py8part = pythia.event[ icon->user_index() ];
-	  if ( std::abs( py8part.id() ) > 10 && std::abs(py8part.id()) < 16)
+	  if ( std::abs( py8part.id() ) > 10 && std::abs(py8part.id()) < 16){
+	    if ( verbose ){
+	      char buff[1000];
+	      sprintf( buff, "  lepton  :  id=%6d  p4=(%6.4f,%6.2f,%6.2f,%6.4f)", py8part.id(), icon->pt(), icon->eta(), icon->phi(), icon->m() );
+	      std::cout << buff << std::endl; 	      
+	    }
 	    lepp4 += *icon;
+	  }
 	}
 	if ( lepp4.e() / ijet->e() > lepfrac){
+	  if ( verbose ){
+	    char buff[1000];
+	    sprintf( buff, "  skip jet:  ndx=%6d, nc=%6d  p4=(%6.4f,%6.2f,%6.2f,%6.4f)", ijet-ibegin, constituents.size(), ijet->pt(), ijet->eta(), ijet->phi(), ijet->m() );
+	    std::cout << buff << std::endl; 
+	  }
 	  continue;
 	}
 
-	if ( verbose ) 
-	  std::cout << "getting constituents for jet with pt " << ijet->pt() << ", nc = " << ijet->constituents().size() << std::endl;
+	if ( verbose ) {
+	  std::cout << "getting constituents for jet :" << std::endl;
+	  char buff[1000];
+	  sprintf( buff, "  add  jet:  ndx=%6d, nc=%6d  p4=(%6.4f,%6.2f,%6.2f,%6.4f)", ijet-ibegin, constituents.size(), ijet->pt(), ijet->eta(), ijet->phi(), ijet->m() );
+	  std::cout << buff << std::endl;
+	}
 	if ( nJet < kMaxJet ) { 
 	  
 	  jet_pt[nJet]=ijet->perp();
@@ -208,31 +228,20 @@ int main(int argc, char ** argv) {
 	  jet_phi[nJet]=ijet->phi();
 	  jet_m[nJet]=ijet->m();
 	  jet_nc[nJet] = constituents.size();
-	  ++nJet;
-	  
-	  if ( constituents.size() > 0 && nParticle + constituents.size() < kMaxParticle ) {	    
+	  if ( constituents.size() > 0 ) {	    
 	    auto jbegin = constituents.begin();
 	    auto jend = constituents.end();
+	    Int_t nParticle = 0;
 	    for ( auto iparticle=jbegin; iparticle != jend;++iparticle ){
 	      
 	      auto index = iparticle->user_index();
-	      particle_ndx[nParticle] = index;
-	      jet_ndx[nParticle] = ijet-ibegin;
+	      jet_ic[nJet][nParticle] = genmap[index];
+	      if ( verbose ) std::cout << index << " ";
 	      ++nParticle;
 	    }
-	  } else {
-	    std::cout << "In event " << iEvent << ", too many particles to write out, ignoring constituents from jet " << ijet-ibegin << std::endl;
-	    // std::cout << "jets size: " << jets.size() << std::endl;
-	    // std::cout << "     ijet: " << ijet - ibegin << std::endl;
-	    // std::cout << "     nJet: " << nJet << std::endl;
-	    // std::cout << "       nc: " << constituents.size() << std::endl;
-	    // for ( auto prjet = ibegin; prjet != iend; ++prjet ) {
-	    //   char buff[1000];
-	    //   sprintf(buff, "   %6d %6.2f %6.2f %6.2f %6.2f", prjet - ibegin, prjet->perp(), prjet->eta(), prjet->phi(), prjet->m() );
-	    //   std::cout << buff << std::endl;
-	    // }
-	    // char ci; cin >> ci;
+	    if ( verbose) std::cout << endl;
 	  }
+	  ++nJet;
 	}
       }
       if ( verbose ) 
