@@ -49,8 +49,9 @@ int main(int argc, char ** argv) {
   // Set up the ROOT TFile and TTree.
   TFile *file = TFile::Open(outfile,"recreate");
   Event *event = &pythia.event;
-  const Int_t kMaxJet = 3;                        // Stores leading 3 jets
+  const Int_t kMaxJet = 10;                       // Stores leading 10 jets
   const Int_t kMaxParticle = 500;                 // and up to 500 of their constituents (pt ordered by jet)
+  const Int_t kMaxGen = 10000;                     // and 2000 of the generator particles
   Int_t nJet;
   Float_t jet_pt[kMaxJet];
   Float_t jet_eta[kMaxJet];
@@ -59,19 +60,55 @@ int main(int argc, char ** argv) {
   Int_t   jet_nc[kMaxJet];
   Int_t nParticle;
   Int_t   jet_ndx[kMaxParticle];
-  Int_t   particle_ndx[kMaxParticle];
+  Int_t   particle_ndx[kMaxParticle];  
+  Int_t nGen;
+  Float_t gen_pt[kMaxGen];
+  Float_t gen_eta[kMaxGen];
+  Float_t gen_phi[kMaxGen];
+  Float_t gen_m[kMaxGen];
+  Int_t   gen_id[kMaxGen];
+  Int_t   gen_flags[kMaxGen];
+  Int_t   gen_status[kMaxGen];
+  Int_t   gen_mother1[kMaxGen];
+  Int_t   gen_mother2[kMaxGen];
+  Int_t   gen_daughter1[kMaxGen];
+  Int_t   gen_daughter2[kMaxGen];
+  Int_t   gen_col[kMaxGen];
+  Int_t   gen_vxx[kMaxGen];
+  Int_t   gen_vyy[kMaxGen];
+  Int_t   gen_vzz[kMaxGen];
+  Int_t   gen_tau[kMaxGen];
+
   TTree * T = new TTree("T","ev1 Tree");         // Allocate the tree, but DO NOT DELETE IT since ROOT takes ownership magically. 
-  T->Branch("event",&event);
   T->Branch("nJet",    &nJet,  "nJet/I");
   T->Branch("nParticle",    &nParticle,  "nParticle/I");
+  
   T->Branch("jet_pt",  &jet_pt,  "jet_pt[nJet]/F");
   T->Branch("jet_eta", &jet_eta, "jet_eta[nJet]/F");
   T->Branch("jet_phi", &jet_phi, "jet_phi[nJet]/F");
   T->Branch("jet_m",   &jet_m,   "jet_m[nJet]/F");
   T->Branch("jet_nc",  &jet_nc,  "jet_nc[nJet]/I");
   T->Branch("particle_ndx", &particle_ndx, "particle_ndx[nParticle]/I");   // Index of particles clustered. 
-  T->Branch("jet_ndx", &jet_ndx, "jet_ndx[nParticle]/I");                  // Jet this particle came from. 
+  T->Branch("jet_ndx", &jet_ndx, "jet_ndx[nParticle]/I");                  // Jet this particle came from.
+  T->Branch("nGen",    &nGen,  "nGen/I");
+  T->Branch("gen_pt",        &gen_pt,  "gen_pt[nGen]/F");
+  T->Branch("gen_eta",       &gen_eta, "gen_eta[nGen]/F");
+  T->Branch("gen_phi",       &gen_phi, "gen_phi[nGen]/F");
+  T->Branch("gen_m",         &gen_m,   "gen_m[nGen]/F");
+  T->Branch("gen_flags",     &gen_flags,     "gen_flags[nGen]/I");
+  T->Branch("gen_id",        &gen_id,        "gen_id[nGen]/I"       );
+  T->Branch("gen_status",    &gen_status,    "gen_status[nGen]/I"   );
+  T->Branch("gen_mother1",   &gen_mother1,   "gen_mother1[nGen]/I"  );
+  T->Branch("gen_mother2",   &gen_mother2,   "gen_mother2[nGen]/I"  );
+  T->Branch("gen_daughter1", &gen_daughter1, "gen_daughter1[nGen]/I");
+  T->Branch("gen_daughter2", &gen_daughter2, "gen_daughter2[nGen]/I");
+  T->Branch("gen_col",       &gen_col,       "gen_col[nGen]/I"      );
+  T->Branch("gen_vxx",       &gen_vxx,       "gen_vxx[nGen]/I"      );
+  T->Branch("gen_vyy",       &gen_vyy,       "gen_vyy[nGen]/I"      );
+  T->Branch("gen_vzz",       &gen_vzz,       "gen_vzz[nGen]/I"      );
+  T->Branch("gen_tau",       &gen_tau,       "gen_tau[nGen]/I"      );
 
+  
  // Begin event loop. Generate event; skip if generation aborted.
   for (int iEvent = 0; iEvent < nEvents; ++iEvent) {
     if (!pythia.next()) continue;
@@ -80,19 +117,59 @@ int main(int argc, char ** argv) {
 
     nJet=0;
     nParticle=0;
-    for ( auto x : jet_pt ) x=-1.0;
-    for ( auto x : jet_eta ) x=-1.0;
-    for ( auto x : jet_phi ) x=-1.0;
-    for ( auto x : jet_m ) x=-1.0;
-    for ( auto x : jet_nc ) x=-1;
-    for ( auto x : particle_ndx ) x=-1;
-    for ( auto x : jet_ndx ) x=-1;
+    nGen = 0;
+    for ( auto x : jet_pt ) x=0.0;
+    for ( auto x : jet_eta ) x=0.0;
+    for ( auto x : jet_phi ) x=0.0;
+    for ( auto x : jet_m ) x=0.0;
+    for ( auto x : jet_nc ) x=0;
+    for ( auto x : particle_ndx ) x=0;
+    for ( auto x : jet_ndx ) x=0;
+    for ( auto x : gen_pt ) x=0.0;
+    for ( auto x : gen_eta ) x=0.0;
+    for ( auto x : gen_phi ) x=0.0;
+    for ( auto x : gen_m ) x=0.0;
+    for ( auto x : gen_flags ) x = 0;
+    for ( auto x : gen_id ) x = 0;
+    for ( auto x : gen_status ) x = 0;
+    for ( auto x : gen_mother1 ) x = 0;
+    for ( auto x : gen_mother2 ) x = 0;
+    for ( auto x : gen_daughter1 ) x = 0;
+    for ( auto x : gen_daughter2 ) x = 0;
+    for ( auto x : gen_col ) x = 0;
+    for ( auto x : gen_vxx ) x = 0;
+    for ( auto x : gen_vyy ) x = 0;
+    for ( auto x : gen_vzz ) x = 0;
+    for ( auto x : gen_tau ) x = 0;
 
+    // Dump the PYTHIA8 content.     
     // Create AK8 jets with pt > 170 GeV
     std::vector<fastjet::PseudoJet> fj_particles;
-    for (int i = 0; i < event->size(); ++i){      
-      if (pythia.event[i].isFinal() ) {
-	auto const & p = pythia.event[i];
+    for (int i = 0; i < event->size(); ++i){
+      if ( i > kMaxGen ){
+	std::cout << "too many particles in event " << iEvent << ", storing first " << kMaxGen << std::endl;
+	continue;
+      }
+      auto const & p = pythia.event[i];
+      gen_pt[nGen] = p.pT();
+      gen_eta[nGen] = p.eta();
+      gen_phi[nGen] = p.phi();
+      gen_m[nGen] = p.m();
+      gen_id[nGen] =         p.id();
+      gen_flags[nGen] =      p.isFinal() << 2 | p.isFinalPartonLevel() << 1 | p.isVisible() << 0; 
+      gen_status[nGen] =     p.status();    
+      gen_mother1[nGen] =    p.mother1();   
+      gen_mother2[nGen] =    p.mother2();   
+      gen_daughter1[nGen] =  p.daughter1(); 
+      gen_daughter2[nGen] =  p.daughter2(); 
+      gen_col[nGen] =        p.col();       
+      gen_vxx[nGen] =        p.xProd();       
+      gen_vyy[nGen] =        p.yProd();       
+      gen_vzz[nGen] =        p.zProd();       
+      gen_tau[nGen] =        p.tau();             
+      ++nGen;
+      if ( p.isFinal() ) {
+	
 	fj_particles.emplace_back( p.px(), p.py(), p.pz(), p.e()  );
 	fj_particles.back().set_user_index( i );
       }

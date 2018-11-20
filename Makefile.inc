@@ -1,6 +1,6 @@
 # PYTHIA configuration file.
 # Generated on Fri Apr 20 16:03:34 EDT 2018 with the user supplied options:
-# --prefix=/Users/rappoccio/software/pythia8235-install/
+# --prefix=/Users/rappoccio/software/pythia8230-install/
 # --with-fastjet3=/Users/rappoccio/software_installs/fastjet-3.3.0-install/
 # --with-lhapdf6=/Users/rappoccio/software/LHAPDF-6.2.1-install/
 # --with-root=/Users/rappoccio/software/root-v6-install/
@@ -8,10 +8,10 @@
 # --with-python-include=/opt/local/Library/Frameworks/Python.framework/Versions/2.7/include/python2.7/
 
 # Install directory prefixes.
-PREFIX_BIN=/Users/rappoccio/software/pythia8235-install//bin
-PREFIX_INCLUDE=/Users/rappoccio/software/pythia8235-install//include
-PREFIX_LIB=/Users/rappoccio/software/pythia8235-install//lib
-PREFIX_SHARE=/Users/rappoccio/software/pythia8235-install//share/Pythia8
+PREFIX_BIN=/software/pythia8230-install//bin
+PREFIX_INCLUDE=/software/pythia8230-install//include
+PREFIX_LIB=/software/pythia8230-install//lib
+PREFIX_SHARE=/software/pythia8230-install//share/Pythia8
 
 # Compilation flags (see ./configure --help for further documentation).
 ENABLE_SHARED=false
@@ -29,9 +29,9 @@ EVTGEN_LIB=./
 
 # FASTJET3 configuration.
 FASTJET3_USE=true
-FASTJET3_BIN=/Users/rappoccio/software_installs/fastjet-3.3.0-install//bin/
-FASTJET3_INCLUDE=/Users/rappoccio/software_installs/fastjet-3.3.0-install//include
-FASTJET3_LIB=/Users/rappoccio/software_installs/fastjet-3.3.0-install//lib
+FASTJET3_BIN=/software/fastjet-3.3.0-install//bin/
+FASTJET3_INCLUDE=/software/fastjet-3.3.0-install//include
+FASTJET3_LIB=/software/fastjet-3.3.0-install//lib
 
 # HEPMC2 configuration.
 HEPMC2_USE=false
@@ -52,10 +52,10 @@ LHAPDF5_INCLUDE=./
 LHAPDF5_LIB=./
 
 # LHAPDF6 configuration.
-LHAPDF6_USE=true
-LHAPDF6_BIN=/Users/rappoccio/software/LHAPDF-6.2.1-install//bin/
-LHAPDF6_INCLUDE=/Users/rappoccio/software/LHAPDF-6.2.1-install//include
-LHAPDF6_LIB=/Users/rappoccio/software/LHAPDF-6.2.1-install//lib
+LHAPDF6_USE=false
+LHAPDF6_BIN=
+LHAPDF6_INCLUDE=./
+LHAPDF6_LIB=./
 
 # POWHEG configuration.
 POWHEG_USE=false
@@ -71,9 +71,9 @@ PROMC_LIB=./
 
 # ROOT configuration.
 ROOT_USE=true
-ROOT_BIN=/Users/rappoccio/software/root-v6-install//bin/
-ROOT_INCLUDE=/Users/rappoccio/software/root-v6-install//include
-ROOT_LIB=/Users/rappoccio/software/root-v6-install//lib
+ROOT_BIN=/software/root-v6-12-04-install//bin/
+ROOT_INCLUDE=/software/root-v6-12-04-install//include
+ROOT_LIB=/software/root-v6-12-04-install//lib
 
 # GZIP configuration.
 GZIP_USE=false
