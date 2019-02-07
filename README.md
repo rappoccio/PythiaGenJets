@@ -10,17 +10,17 @@ The example generates Z+jets events where the Z decays to electron or muon pairs
 ### Example for using Jupyter Notebooks
 
 ```
-bash ./runDockerJupyRoot.sh
+bash ./runDockerX11OS.sh srappoccio/PythiaGenJets:latest
 ```
 
-Then point your local browser to [localhost](http://localhost:8888) and put in the generated token from the previous command. The examples are mounted on your Docker image under `zjets_example`. There is a previously generated $Z+$jets sample under `zjets_root.ipynb`, or you can run your own under `plot_zjets.ipynb`. 
+Then point your local browser to [localhost](http://localhost:8888) and put in the generated token from the previous command. The examples are mounted on your Docker image under `results`. There is a previously generated $Z+$jets sample under `zjets_root.ipynb`, or you can run your own under `plot_zjets.ipynb`. 
 
 ### Command line
 
 To run on the command line with the docker image, do:
 
 ```
-bash ./runDockerCommandLine.sh srappoccio/fastjet-tutorial-root:latest
+bash ./runDockerCommandLine.sh srappoccio/PythiaGenJets:latest
 ```
 
 Then subsequently, either on your machine or the docker image you just made:
