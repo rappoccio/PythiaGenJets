@@ -10,10 +10,13 @@ PREFIX_SHARE=/app/share/Pythia8
 # Compilation flags (see ./configure --help for further documentation).
 ENABLE_SHARED=false
 CXX=g++
-CXX_COMMON=-O2  -pedantic -W -Wall -Wshadow -fPIC
-CXX_SHARED=-dynamiclib
-CXX_SONAME=-Wl,-dylib_install_name,@rpath/
-LIB_SUFFIX=.dylib
+#CXX_COMMON=-O2  -pedantic -W -Wall -Wshadow -fPIC
+CXX_COMMON=
+#CXX_SHARED=-dynamiclib
+CXX_SHARED=
+#CXX_SONAME=-Wl,-dylib_install_name,@rpath/
+CXX_SONAME=-Wl,-install_name,@rpath/
+LIB_SUFFIX=.so
 
 # EVTGEN configuration.
 EVTGEN_USE=false
@@ -24,7 +27,7 @@ EVTGEN_LIB=./
 # FASTJET3 configuration.
 FASTJET3_USE=true
 FASTJET3_BIN=/app/bin/
-FASTJET3_INCLUDE=/app/include
+FASTJET3_INCLUDE=/app/include/fastjet
 FASTJET3_LIB=/app/lib
 
 # HEPMC2 configuration.
@@ -66,7 +69,7 @@ PROMC_LIB=./
 # ROOT configuration.
 ROOT_USE=true
 ROOT_BIN=/usr/local/bin/
-ROOT_INCLUDE=/usr/local/include
+ROOT_INCLUDE=/usr/local/include/root
 ROOT_LIB=/usr/local/lib
 
 # GZIP configuration.
@@ -84,5 +87,5 @@ BOOST_LIB=./
 # PYTHON configuration.
 PYTHON_USE=true
 PYTHON_BIN=/usr/bin/
-PYTHON_INCLUDE=/usr/include/
+PYTHON_INCLUDE=/usr/include/python2.7
 PYTHON_LIB=/usr/lib

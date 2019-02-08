@@ -47,7 +47,7 @@ Makefile.inc:
                 in the top PYTHIA directory)
 
 # PYTHIA libraries.
-$(PREFIX_LIB)/libpythia8.a :
+$(PREFIX_LIB)/libpythia8.so :
 	$(error Error: PYTHIA must be built, please run "make"\
                 in the top PYTHIA directory)
 
@@ -62,9 +62,8 @@ else
 	@echo "Error: $@ requires ROOT"
 endif
 pythia2root.so: pythia2rootDct.cc $(PREFIX_LIB)/libpythia8.a
-	$(CXX) $< -o $@ -w -I$(FASTJET3_INCLUDE) -I$(ROOT_INCLUDE) $(CXX_SHARED) $(CXX_COMMON)\
-	 -L$(FASTJET3_LIB) -lfastjet -lRecursiveTools\
-	 `$(ROOTBIN)root-config --cflags` `$(ROOT_BIN)root-config --glibs` 
+	$(CXX) $< -o $@ -c -w -I$(ROOT_INCLUDE) $(CXX_SHARED) $(CXX_COMMON) -pthread -std=c++11 -m64 -I/usr/local/include/root -L/usr/local/lib/root -lGui -lCore -lImt -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lTreePlayer -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -lMultiProc -pthread -Wl,-rpath,/usr/local/lib/root -lm -ldl -rdynamic
+#`$(ROOT_BIN)root-config --cflags` `$(ROOT_BIN)root-config --glibs` 
 pythia2rootDct.cc: pythia2root.h pythia2rootLinkDef.h
 	export LD_LIBRARY_PATH=$$LD_LIBRARY_PATH:$(ROOT_LIB);\
 	 $(ROOT_BIN)rootcint -f $@ -c -I$(PREFIX_INCLUDE) $^
