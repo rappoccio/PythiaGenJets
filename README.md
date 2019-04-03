@@ -10,7 +10,7 @@ The example generates Z+jets events where the Z decays to electron or muon pairs
 ### Example for using Jupyter Notebooks
 
 ```
-bash ./runDockerX11OS.sh srappoccio/PythiaGenJets:latest
+bash ./runDockerX11OS.sh srappoccio/pythia-gen-jets:latest
 ```
 
 Then point your local browser to [localhost](http://localhost:8888) and put in the generated token from the previous command. The examples are mounted on your Docker image under `results`. There is a previously generated $Z+$jets sample under `zjets_root.ipynb`, or you can run your own under `plot_zjets.ipynb`. 
@@ -20,7 +20,7 @@ Then point your local browser to [localhost](http://localhost:8888) and put in t
 To run on the command line with the docker image, do:
 
 ```
-bash ./runDockerCommandLine.sh srappoccio/PythiaGenJets:latest
+bash ./runDockerCommandLine.sh srappoccio/pythia-gen-jets:latest
 ```
 
 Then subsequently, either on your machine or the docker image you just made:
