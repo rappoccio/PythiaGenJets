@@ -20,19 +20,23 @@ using namespace Pythia8;
 int main(int argc, char ** argv) {
 
   if ( argc < 4 ) {
-    std::cout << "usage: " << argv[0] << " config_file root_file n_events" << std::endl;
+    std::cout << "usage: " << argv[0] << " config_file root_file n_events <optional: ptcut>" << std::endl;
     return 0;
   }
+
+  // Define the AK8 jet finder.
+  double R = 0.8, ptmin = 30.0, lepfrac = 0.9;
+  fastjet::JetDefinition jet_def(fastjet::antikt_algorithm, R);
 
   bool verbose = false;
 
   char * configfile = argv[1];
   char * outfile = argv[2];
   unsigned int nEvents = atol(argv[3]);
+  if ( argc < 5 ) {
+    ptmin = atof( argv[4]);
+  }
 
-  // Define the AK8 jet finder.
-  double R = 0.8, ptmin = 170.0, lepfrac = 0.9;
-  fastjet::JetDefinition jet_def(fastjet::antikt_algorithm, R);
 
   // Create Pythia instance. Read config from a text file. 
   Pythia pythia;
@@ -141,7 +145,7 @@ int main(int argc, char ** argv) {
     std::map<int,int> genmap;
     for (int i = 0; i < event->size(); ++i){
       auto const & p = pythia.event[i];
-      if ( p.isFinal() || p.isFinalPartonLevel() || p.isResonance() ) {
+      if ( p.isFinal() || p.isFinalPartonLevel() || p.isResonance() || p.isHadron() ) {
 	if ( verbose ) {
 	  char buff[1000];
 	  sprintf( buff, "  ndx=%6d, id=%6d, status=%6d, p4=(%6.4f,%6.2f,%6.2f,%6.4f)", i, p.id(), p.status(), p.pT(), p.eta(), p.phi(), p.m() );
@@ -153,7 +157,7 @@ int main(int argc, char ** argv) {
 	gen_m[nGen] = p.m();
 	gen_orig[nGen] = i;
 	gen_id[nGen] =         p.id();
-	gen_flags[nGen] =      p.isFinal() << 2 | p.isFinalPartonLevel() << 1 | p.isVisible() << 0; 
+	gen_flags[nGen] =      p.isHadron() << 3 | p.isFinal() << 2 | p.isFinalPartonLevel() << 1 | p.isVisible() << 0; 
 	gen_status[nGen] =     p.status();    
 	gen_mother1[nGen] =    p.mother1();   
 	gen_mother2[nGen] =    p.mother2();   
@@ -246,7 +250,7 @@ int main(int argc, char ** argv) {
       }
       if ( verbose ) 
 	std::cout << "About to write" << std::endl;
-      if ( nJet > 0 && jet_pt[0] > 170 ) {
+      if ( nJet > 0 && jet_pt[0] > ptmin ) {
 	// Fill the pythia event into the TTree.
 	T->Fill();
       }
