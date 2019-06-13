@@ -22,4 +22,5 @@ wget http://home.thep.lu.se/~torbjorn/pythia8/pythia8235.tgz \
         && cd pythia8235 \
         && ./configure --prefix=/app --with-python-include=/usr/include/python2.7 --with-python-bin=/usr/bin/ && make && make install \
         && cd ..
-make pythia2root && mv pythia2root /app/bin
+make pythia2root && mv pythia2root /app/bin && mv pythia2rootDct_rdict.pcm /app/bin
+
