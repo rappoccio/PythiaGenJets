@@ -68,6 +68,14 @@ int main(int argc, char ** argv) {
   Float_t jet_msd[kMaxJet];
   Int_t   jet_nc[kMaxJet];
   Int_t   jet_ic[kMaxJet][50];
+  Float_t jet_subjet0_pt[kMaxJet];
+  Float_t jet_subjet0_eta[kMaxJet];
+  Float_t jet_subjet0_phi[kMaxJet];
+  Float_t jet_subjet0_m[kMaxJet];
+  Float_t jet_subjet1_pt[kMaxJet];
+  Float_t jet_subjet1_eta[kMaxJet];
+  Float_t jet_subjet1_phi[kMaxJet];
+  Float_t jet_subjet1_m[kMaxJet];
   Int_t nGen=0;
   Int_t   gen_orig[kMaxGen]; // original index for debugging
   Float_t gen_pt[kMaxGen];
@@ -93,9 +101,17 @@ int main(int argc, char ** argv) {
   T->Branch("jet_eta", &jet_eta, "jet_eta[nJet]/F");
   T->Branch("jet_phi", &jet_phi, "jet_phi[nJet]/F");
   T->Branch("jet_m",   &jet_m,   "jet_m[nJet]/F");
-  T->Branch("jet_msd",   &jet_m,   "jet_msd[nJet]/F");
+  T->Branch("jet_msd",   &jet_msd,   "jet_msd[nJet]/F");
   T->Branch("jet_nc",  &jet_nc,  "jet_nc[nJet]/I");
   T->Branch("jet_ic",  &jet_ic,  "jet_ic[nJet][50]/I");
+  T->Branch("jet_subjet0_pt",  &jet_subjet0_pt,  "jet_subjet0_pt[nJet]/F");
+  T->Branch("jet_subjet0_eta", &jet_subjet0_eta, "jet_subjet0_eta[nJet]/F");
+  T->Branch("jet_subjet0_phi", &jet_subjet0_phi, "jet_subjet0_phi[nJet]/F");
+  T->Branch("jet_subjet0_m",   &jet_subjet0_m,   "jet_subjet0_m[nJet]/F");
+  T->Branch("jet_subjet1_pt",  &jet_subjet1_pt,  "jet_subjet1_pt[nJet]/F");
+  T->Branch("jet_subjet1_eta", &jet_subjet1_eta, "jet_subjet1_eta[nJet]/F");
+  T->Branch("jet_subjet1_phi", &jet_subjet1_phi, "jet_subjet1_phi[nJet]/F");
+  T->Branch("jet_subjet1_m",   &jet_subjet1_m,   "jet_subjet1_m[nJet]/F");    
   T->Branch("nGen",    &nGen,  "nGen/I");
   T->Branch("gen_pt",        &gen_pt,  "gen_pt[nGen]/F");
   T->Branch("gen_eta",       &gen_eta, "gen_eta[nGen]/F");
@@ -130,6 +146,14 @@ int main(int argc, char ** argv) {
     for ( auto i = 0; i < kMaxJet; ++i )
       for ( auto j = 0; j < 50; ++j )
 	jet_ic[i][j] = 0;
+    for ( auto x : jet_subjet0_pt ) x=0.0;
+    for ( auto x : jet_subjet0_eta ) x=0.0;
+    for ( auto x : jet_subjet0_phi ) x=0.0;
+    for ( auto x : jet_subjet0_m ) x=0.0;
+    for ( auto x : jet_subjet1_pt ) x=0.0;
+    for ( auto x : jet_subjet1_eta ) x=0.0;
+    for ( auto x : jet_subjet1_phi ) x=0.0;
+    for ( auto x : jet_subjet1_m ) x=0.0;    
     for ( auto x : gen_pt ) x=0.0;
     for ( auto x : gen_eta ) x=0.0;
     for ( auto x : gen_phi ) x=0.0;
@@ -243,6 +267,19 @@ int main(int argc, char ** argv) {
 	  jet_m[nJet]=ijet->m();
 	  jet_msd[nJet] = sd_jet.m(); 
 	  jet_nc[nJet] = constituents.size();
+	  auto subjets = sd_jet.pieces();
+	  if ( subjets.size() >= 1 ) {
+	    jet_subjet0_pt[nJet]  = subjets[0].perp();
+	    jet_subjet0_eta[nJet] = subjets[0].eta();
+	    jet_subjet0_phi[nJet] = subjets[0].phi();
+	    jet_subjet0_m[nJet]   = subjets[0].m();	    
+	  }
+	  if ( subjets.size() >= 2 ) {
+	    jet_subjet1_pt[nJet]  = subjets[1].perp();
+	    jet_subjet1_eta[nJet] = subjets[1].eta();
+	    jet_subjet1_phi[nJet] = subjets[1].phi();
+	    jet_subjet1_m[nJet]   = subjets[1].m();	    
+	  }	  
 	  if ( constituents.size() > 0 ) {	    
 	    auto jbegin = constituents.begin();
 	    auto jend = constituents.end();
