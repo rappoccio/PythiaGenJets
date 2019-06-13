@@ -10,6 +10,7 @@
 // Header file to access Pythia 8 program elements.
 #include "Pythia8/Pythia.h"
 #include "fastjet/ClusterSequence.hh"
+#include "fastjet/contrib/SoftDrop.hh"
 
 // ROOT, for saving Pythia events as trees in a file.
 #include "TTree.h"
@@ -33,10 +34,14 @@ int main(int argc, char ** argv) {
   char * configfile = argv[1];
   char * outfile = argv[2];
   unsigned int nEvents = atol(argv[3]);
-  if ( argc < 5 ) {
+  if ( argc > 5 ) {
     ptmin = atof( argv[4]);
   }
 
+
+  double z_cut = 0.10;
+  double beta  = 0.0;
+  fastjet::contrib::SoftDrop sd(beta, z_cut);
 
   // Create Pythia instance. Read config from a text file. 
   Pythia pythia;
@@ -60,6 +65,7 @@ int main(int argc, char ** argv) {
   Float_t jet_eta[kMaxJet];
   Float_t jet_phi[kMaxJet];
   Float_t jet_m[kMaxJet];
+  Float_t jet_msd[kMaxJet];
   Int_t   jet_nc[kMaxJet];
   Int_t   jet_ic[kMaxJet][50];
   Int_t nGen=0;
@@ -87,6 +93,7 @@ int main(int argc, char ** argv) {
   T->Branch("jet_eta", &jet_eta, "jet_eta[nJet]/F");
   T->Branch("jet_phi", &jet_phi, "jet_phi[nJet]/F");
   T->Branch("jet_m",   &jet_m,   "jet_m[nJet]/F");
+  T->Branch("jet_msd",   &jet_m,   "jet_msd[nJet]/F");
   T->Branch("jet_nc",  &jet_nc,  "jet_nc[nJet]/I");
   T->Branch("jet_ic",  &jet_ic,  "jet_ic[nJet][50]/I");
   T->Branch("nGen",    &nGen,  "nGen/I");
@@ -118,6 +125,7 @@ int main(int argc, char ** argv) {
     for ( auto x : jet_eta ) x=0.0;
     for ( auto x : jet_phi ) x=0.0;
     for ( auto x : jet_m ) x=0.0;
+    for ( auto x : jet_msd ) x=0.0;
     for ( auto x : jet_nc ) x=0;
     for ( auto i = 0; i < kMaxJet; ++i )
       for ( auto j = 0; j < 50; ++j )
@@ -191,6 +199,8 @@ int main(int argc, char ** argv) {
       auto iend = jets.end();
       for ( auto ijet=ibegin;ijet!=iend;++ijet ) {
 	if ( verbose ) std::cout << "processing jet " << ijet - ibegin << std::endl;
+
+	auto sd_jet =  sd(*ijet);
 	auto constituents = ijet->constituents();
 
 	// Get the fraction of the jet originating from leptons.
@@ -231,6 +241,7 @@ int main(int argc, char ** argv) {
 	  jet_eta[nJet]=ijet->eta();
 	  jet_phi[nJet]=ijet->phi();
 	  jet_m[nJet]=ijet->m();
+	  jet_msd[nJet] = sd_jet.m(); 
 	  jet_nc[nJet] = constituents.size();
 	  if ( constituents.size() > 0 ) {	    
 	    auto jbegin = constituents.begin();
