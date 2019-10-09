@@ -55,7 +55,7 @@ $(PREFIX_LIB)/libpythia8.so :
 pythia2root: $$@.cc $(PREFIX_LIB)/libpythia8.a pythia2root.so
 ifeq ($(FASTJET3_USE)$(ROOT_USE),truetrue)
 	$(CXX) $< pythia2root.so -o $@ -w -I$(ROOT_INCLUDE) -I$(FASTJET3_INCLUDE) $(CXX_COMMON)\
-	 -L$(FASTJET3_LIB) -Wl,-rpath,$(FASTJET3_LIB) -lfastjet -lRecursiveTools -lfastjettools \
+	 -L$(FASTJET3_LIB) -Wl,-rpath,$(FASTJET3_LIB) -lfastjet -lRecursiveTools -lNsubjettiness -lfastjettools \
 	 `$(ROOTBIN)root-config --cflags` -Wl,-rpath,./\
 	 -Wl,-rpath,$(ROOT_LIB) `$(ROOT_BIN)root-config --glibs`
 else

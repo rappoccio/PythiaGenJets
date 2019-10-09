@@ -11,6 +11,10 @@
 #include "Pythia8/Pythia.h"
 #include "fastjet/ClusterSequence.hh"
 #include "fastjet/contrib/SoftDrop.hh"
+#include "fastjet/contrib/Nsubjettiness.hh" // In external code, this should be fastjet/contrib/Nsubjettiness.hh
+#include "fastjet/contrib/Njettiness.hh"
+#include "fastjet/contrib/NjettinessPlugin.hh"
+
 
 // ROOT, for saving Pythia events as trees in a file.
 #include "TTree.h"
@@ -24,6 +28,12 @@ int main(int argc, char ** argv) {
     std::cout << "usage: " << argv[0] << " config_file root_file n_events <optional: ptcut>" << std::endl;
     return 0;
   }
+
+  // Define Nsubjettiness functions for beta = 1.0 using one-pass WTA KT axes
+  double beta22 = 1.0;
+  fastjet::contrib::Nsubjettiness  nSub1_beta1(1,   fastjet::contrib::OnePass_WTA_KT_Axes(), fastjet::contrib::UnnormalizedMeasure(beta22));
+
+  
 
   // Define the AK8 jet finder.
   double R = 0.8, ptmin = 30.0, lepfrac = 0.9;
