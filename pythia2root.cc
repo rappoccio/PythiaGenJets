@@ -33,11 +33,7 @@ int main(int argc, char ** argv) {
 
   double beta_nsj = 1.0;
   const Int_t max_nsj = 8;
-  std::vector<fastjet::contrib::Nsubjettiness> nSub_beta1;
-  nSub_beta1.reserve(max_nsj); 
-  for ( unsigned int isj = 0; isj < max_nsj; ++isj ){
-    nSub_beta1.emplace_back( isj, fastjet::contrib::OnePass_WTA_KT_Axes(), fastjet::contrib::UnnormalizedMeasure(beta_nsj));
-  }
+
 
   // Define the AK8 jet finder.
   double R = 0.8, ptmin = 30.0, lepfrac = 0.9;
@@ -73,8 +69,8 @@ int main(int argc, char ** argv) {
   TFile *file = TFile::Open(outfile,"recreate");
   Event *event = &pythia.event;
   const Int_t kMaxJet = 10;                       // Stores leading 10 jets
-  const Int_t kMaxGen = 2000;                     // and 1000 of the generator particles
-  const Int_t kMaxConstituent = 1000;            // and 1000 of the jet constituents
+  const Int_t kMaxGen = 5000;                     // and 1000 of the generator particles
+  const Int_t kMaxConstituent = 5000;            // and 1000 of the jet constituents
   Int_t nJet=0;
   Float_t jet_pt[kMaxJet];
   Float_t jet_eta[kMaxJet];
@@ -275,7 +271,7 @@ int main(int argc, char ** argv) {
     std::vector<fastjet::PseudoJet> fj_particles;
     std::map<int,int> constituentmap;
     for (int i = 0; i < event->size(); ++i){
-      auto const & p = pythia.event[
+      auto const & p = pythia.event[i];
       if ( p.isFinalPartonLevel() || p.isResonance()) {
 	if ( verbose ) {
 	  char buff[1000];
@@ -304,7 +300,7 @@ int main(int argc, char ** argv) {
 	  std::cout << "too many particles in event " << iEvent << ", storing first " << kMaxGen << std::endl;
 	  break;
 	}
-      } else if ( p.isFinal() || p.isHadron() ) {
+      } else if ( p.isFinal() ) {
 
 	if ( verbose ) {
 	  char buff[1000];
@@ -335,7 +331,7 @@ int main(int argc, char ** argv) {
 	} 
 	++nConstituent;
 	if ( nConstituent >= kMaxConstituent ){
-	  std::cout << "too many particles in event " << iEvent << ", storing first " << kMaxConstituent << std::endl;
+	  std::cout << "too many jet constituents in event " << iEvent << ", storing first " << kMaxConstituent << std::endl;
 	  break;
 	}
       }
@@ -394,10 +390,25 @@ int main(int argc, char ** argv) {
 	  jet_phi[nJet]=ijet->phi();
 	  jet_m[nJet]=ijet->m();	  
 	  jet_msd[nJet] = sd_jet.m();
-	  // calculate Nsubjettiness values (beta = 1.0)
-	  std::vector<Float_t *> taus = { jet_tau1, jet_tau2, jet_tau3, jet_tau4, jet_tau5, jet_tau6, jet_tau7, jet_tau8};
-	  for ( unsigned int itau = 0; itau < taus.size(); ++itau ){
-	    taus[itau][nJet] = nSub_beta1[itau](*ijet);
+
+	  if ( nJet < 20 ) { //N-jettiness is hard-coded to only allow up to 20 jets
+	    fastjet::contrib::Nsubjettiness nSub1_beta1(1, fastjet::contrib::OnePass_WTA_KT_Axes(), fastjet::contrib::UnnormalizedMeasure(beta_nsj));
+	    fastjet::contrib::Nsubjettiness nSub2_beta1(2, fastjet::contrib::OnePass_WTA_KT_Axes(), fastjet::contrib::UnnormalizedMeasure(beta_nsj));
+	    fastjet::contrib::Nsubjettiness nSub3_beta1(3, fastjet::contrib::OnePass_WTA_KT_Axes(), fastjet::contrib::UnnormalizedMeasure(beta_nsj));
+	    fastjet::contrib::Nsubjettiness nSub4_beta1(4, fastjet::contrib::OnePass_WTA_KT_Axes(), fastjet::contrib::UnnormalizedMeasure(beta_nsj));
+	    fastjet::contrib::Nsubjettiness nSub5_beta1(5, fastjet::contrib::OnePass_WTA_KT_Axes(), fastjet::contrib::UnnormalizedMeasure(beta_nsj));
+	    fastjet::contrib::Nsubjettiness nSub6_beta1(6, fastjet::contrib::OnePass_WTA_KT_Axes(), fastjet::contrib::UnnormalizedMeasure(beta_nsj));
+	    fastjet::contrib::Nsubjettiness nSub7_beta1(7, fastjet::contrib::OnePass_WTA_KT_Axes(), fastjet::contrib::UnnormalizedMeasure(beta_nsj));
+	    fastjet::contrib::Nsubjettiness nSub8_beta1(8, fastjet::contrib::OnePass_WTA_KT_Axes(), fastjet::contrib::UnnormalizedMeasure(beta_nsj));
+
+	    jet_tau1[nJet] = nSub1_beta1(*ijet);
+	    jet_tau2[nJet] = nSub2_beta1(*ijet);
+	    jet_tau3[nJet] = nSub3_beta1(*ijet);
+	    jet_tau4[nJet] = nSub4_beta1(*ijet);
+	    jet_tau5[nJet] = nSub5_beta1(*ijet);
+	    jet_tau6[nJet] = nSub6_beta1(*ijet);
+	    jet_tau7[nJet] = nSub7_beta1(*ijet);
+	    jet_tau8[nJet] = nSub8_beta1(*ijet);
 	  }
 	  
 	  jet_nc[nJet] = constituents.size();
