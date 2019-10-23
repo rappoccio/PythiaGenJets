@@ -30,10 +30,14 @@ int main(int argc, char ** argv) {
   }
 
   // Define Nsubjettiness functions for beta = 1.0 using one-pass WTA KT axes
-  double beta22 = 1.0;
-  fastjet::contrib::Nsubjettiness  nSub1_beta1(1,   fastjet::contrib::OnePass_WTA_KT_Axes(), fastjet::contrib::UnnormalizedMeasure(beta22));
 
-  
+  double beta_nsj = 1.0;
+  const Int_t max_nsj = 8;
+  std::vector<fastjet::contrib::Nsubjettiness> nSub_beta1;
+  nSub_beta1.reserve(max_nsj); 
+  for ( unsigned int isj = 0; isj < max_nsj; ++isj ){
+    nSub_beta1.emplace_back( isj, fastjet::contrib::OnePass_WTA_KT_Axes(), fastjet::contrib::UnnormalizedMeasure(beta_nsj));
+  }
 
   // Define the AK8 jet finder.
   double R = 0.8, ptmin = 30.0, lepfrac = 0.9;
@@ -69,15 +73,26 @@ int main(int argc, char ** argv) {
   TFile *file = TFile::Open(outfile,"recreate");
   Event *event = &pythia.event;
   const Int_t kMaxJet = 10;                       // Stores leading 10 jets
-  const Int_t kMaxGen = 10000;                     // and 10000 of the generator particles
+  const Int_t kMaxGen = 2000;                     // and 1000 of the generator particles
+  const Int_t kMaxConstituent = 1000;            // and 1000 of the jet constituents
   Int_t nJet=0;
   Float_t jet_pt[kMaxJet];
   Float_t jet_eta[kMaxJet];
   Float_t jet_phi[kMaxJet];
   Float_t jet_m[kMaxJet];
   Float_t jet_msd[kMaxJet];
+  Float_t jet_tau1[kMaxJet];
+  Float_t jet_tau2[kMaxJet];
+  Float_t jet_tau3[kMaxJet];
+  Float_t jet_tau4[kMaxJet];
+  Float_t jet_tau5[kMaxJet];
+  Float_t jet_tau6[kMaxJet];
+  Float_t jet_tau7[kMaxJet];
+  Float_t jet_tau8[kMaxJet];
+  
   Int_t   jet_nc[kMaxJet];
   Int_t   jet_ic[kMaxJet][50];
+  Int_t   jet_nsubjet[kMaxJet];
   Float_t jet_subjet0_pt[kMaxJet];
   Float_t jet_subjet0_eta[kMaxJet];
   Float_t jet_subjet0_phi[kMaxJet];
@@ -105,6 +120,26 @@ int main(int argc, char ** argv) {
   Float_t   gen_vzz[kMaxGen];
   Float_t   gen_tau[kMaxGen];
 
+
+  Int_t nConstituent=0;
+  Int_t   constituent_orig[kMaxConstituent]; // original index for debugging
+  Float_t constituent_pt[kMaxConstituent];
+  Float_t constituent_eta[kMaxConstituent];
+  Float_t constituent_phi[kMaxConstituent];
+  Float_t constituent_m[kMaxConstituent];
+  Int_t   constituent_id[kMaxConstituent];
+  Int_t   constituent_flags[kMaxConstituent];
+  Int_t   constituent_status[kMaxConstituent];
+  Int_t   constituent_mother1[kMaxConstituent];
+  Int_t   constituent_mother2[kMaxConstituent];
+  Int_t   constituent_daughter1[kMaxConstituent];
+  Int_t   constituent_daughter2[kMaxConstituent];
+  Int_t   constituent_col[kMaxConstituent];
+  Float_t   constituent_vxx[kMaxConstituent];
+  Float_t   constituent_vyy[kMaxConstituent];
+  Float_t   constituent_vzz[kMaxConstituent];
+  Float_t   constituent_tau[kMaxConstituent];
+
   TTree * T = new TTree("T","ev1 Tree");         // Allocate the tree, but DO NOT DELETE IT since ROOT takes ownership magically. 
   T->Branch("nJet",    &nJet,  "nJet/I");
   T->Branch("jet_pt",  &jet_pt,  "jet_pt[nJet]/F");
@@ -112,8 +147,17 @@ int main(int argc, char ** argv) {
   T->Branch("jet_phi", &jet_phi, "jet_phi[nJet]/F");
   T->Branch("jet_m",   &jet_m,   "jet_m[nJet]/F");
   T->Branch("jet_msd",   &jet_msd,   "jet_msd[nJet]/F");
+  T->Branch("jet_tau1",   &jet_tau1,   "jet_tau1[nJet]/F");
+  T->Branch("jet_tau2",   &jet_tau2,   "jet_tau2[nJet]/F");
+  T->Branch("jet_tau3",   &jet_tau3,   "jet_tau3[nJet]/F");
+  T->Branch("jet_tau4",   &jet_tau4,   "jet_tau4[nJet]/F");
+  T->Branch("jet_tau5",   &jet_tau5,   "jet_tau5[nJet]/F");
+  T->Branch("jet_tau6",   &jet_tau6,   "jet_tau6[nJet]/F");
+  T->Branch("jet_tau7",   &jet_tau7,   "jet_tau7[nJet]/F");
+  T->Branch("jet_tau8",   &jet_tau8,   "jet_tau8[nJet]/F");
   T->Branch("jet_nc",  &jet_nc,  "jet_nc[nJet]/I");
   T->Branch("jet_ic",  &jet_ic,  "jet_ic[nJet][50]/I");
+  T->Branch("jet_nsubjet",  &jet_nsubjet,  "jet_nsubjet[nJet]/I");
   T->Branch("jet_subjet0_pt",  &jet_subjet0_pt,  "jet_subjet0_pt[nJet]/F");
   T->Branch("jet_subjet0_eta", &jet_subjet0_eta, "jet_subjet0_eta[nJet]/F");
   T->Branch("jet_subjet0_phi", &jet_subjet0_phi, "jet_subjet0_phi[nJet]/F");
@@ -140,10 +184,30 @@ int main(int argc, char ** argv) {
   T->Branch("gen_vzz",       &gen_vzz,       "gen_vzz[nGen]/F"      );
   T->Branch("gen_tau",       &gen_tau,       "gen_tau[nGen]/F"      );
 
+
+  T->Branch("nConstituent",    &nConstituent,  "nConstituent/I");
+  T->Branch("constituent_pt",        &constituent_pt,  "constituent_pt[nConstituent]/F");
+  T->Branch("constituent_eta",       &constituent_eta, "constituent_eta[nConstituent]/F");
+  T->Branch("constituent_phi",       &constituent_phi, "constituent_phi[nConstituent]/F");
+  T->Branch("constituent_m",         &constituent_m,   "constituent_m[nConstituent]/F");
+  T->Branch("constituent_flags",     &constituent_flags,     "constituent_flags[nConstituent]/I");
+  T->Branch("constituent_id",        &constituent_id,        "constituent_id[nConstituent]/I"       );
+  T->Branch("constituent_status",    &constituent_status,    "constituent_status[nConstituent]/I"   );
+  T->Branch("constituent_mother1",   &constituent_mother1,   "constituent_mother1[nConstituent]/I"  );
+  T->Branch("constituent_mother2",   &constituent_mother2,   "constituent_mother2[nConstituent]/I"  );
+  T->Branch("constituent_daughter1", &constituent_daughter1, "constituent_daughter1[nConstituent]/I");
+  T->Branch("constituent_daughter2", &constituent_daughter2, "constituent_daughter2[nConstituent]/I");
+  T->Branch("constituent_col",       &constituent_col,       "constituent_col[nConstituent]/I"      );
+  T->Branch("constituent_vxx",       &constituent_vxx,       "constituent_vxx[nConstituent]/F"      );
+  T->Branch("constituent_vyy",       &constituent_vyy,       "constituent_vyy[nConstituent]/F"      );
+  T->Branch("constituent_vzz",       &constituent_vzz,       "constituent_vzz[nConstituent]/F"      );
+  T->Branch("constituent_tau",       &constituent_tau,       "constituent_tau[nConstituent]/F"      );
+
+  
   
  // Begin event loop. Generate event; skip if generation aborted.
   for (int iEvent = 0; iEvent < nEvents; ++iEvent) {
-    nGen = nJet = 0;
+    nConstituent = nGen = nJet = 0;
     if (!pythia.next()) continue;
     if ( verbose ) 
       std::cout << "Generating event " << iEvent << std::endl;
@@ -152,7 +216,16 @@ int main(int argc, char ** argv) {
     for ( auto x : jet_phi ) x=0.0;
     for ( auto x : jet_m ) x=0.0;
     for ( auto x : jet_msd ) x=0.0;
+    for ( auto x : jet_tau1 ) x=0.0;
+    for ( auto x : jet_tau2 ) x=0.0;
+    for ( auto x : jet_tau3 ) x=0.0;
+    for ( auto x : jet_tau4 ) x=0.0;
+    for ( auto x : jet_tau5 ) x=0.0;
+    for ( auto x : jet_tau6 ) x=0.0;
+    for ( auto x : jet_tau7 ) x=0.0;
+    for ( auto x : jet_tau8 ) x=0.0;
     for ( auto x : jet_nc ) x=0;
+    for ( auto x : jet_nsubjet ) x=0;
     for ( auto i = 0; i < kMaxJet; ++i )
       for ( auto j = 0; j < 50; ++j )
 	jet_ic[i][j] = 0;
@@ -180,14 +253,30 @@ int main(int argc, char ** argv) {
     for ( auto x : gen_vyy ) x = 0.;
     for ( auto x : gen_vzz ) x = 0.;
     for ( auto x : gen_tau ) x = 0.;
+    for ( auto x : constituent_pt ) x=0.0;
+    for ( auto x : constituent_eta ) x=0.0;
+    for ( auto x : constituent_phi ) x=0.0;
+    for ( auto x : constituent_m ) x=0.0;
+    for ( auto x : constituent_flags ) x = 0;
+    for ( auto x : constituent_id ) x = 0;
+    for ( auto x : constituent_status ) x = 0;
+    for ( auto x : constituent_mother1 ) x = 0;
+    for ( auto x : constituent_mother2 ) x = 0;
+    for ( auto x : constituent_daughter1 ) x = 0;
+    for ( auto x : constituent_daughter2 ) x = 0;
+    for ( auto x : constituent_col ) x = 0;
+    for ( auto x : constituent_vxx ) x = 0.;
+    for ( auto x : constituent_vyy ) x = 0.;
+    for ( auto x : constituent_vzz ) x = 0.;
+    for ( auto x : constituent_tau ) x = 0.;
 
     // Dump the PYTHIA8 content.     
     // Create AK8 jets with pt > 170 GeV
     std::vector<fastjet::PseudoJet> fj_particles;
-    std::map<int,int> genmap;
+    std::map<int,int> constituentmap;
     for (int i = 0; i < event->size(); ++i){
-      auto const & p = pythia.event[i];
-      if ( p.isFinal() || p.isFinalPartonLevel() || p.isResonance() || p.isHadron() ) {
+      auto const & p = pythia.event[
+      if ( p.isFinalPartonLevel() || p.isResonance()) {
 	if ( verbose ) {
 	  char buff[1000];
 	  sprintf( buff, "  ndx=%6d, id=%6d, status=%6d, p4=(%6.4f,%6.2f,%6.2f,%6.4f)", i, p.id(), p.status(), p.pT(), p.eta(), p.phi(), p.m() );
@@ -210,16 +299,45 @@ int main(int argc, char ** argv) {
 	gen_vyy[nGen] =        p.yProd();       
 	gen_vzz[nGen] =        p.zProd();       
 	gen_tau[nGen] =        p.tau();             
-	if ( p.isFinal() ) {
-	  fj_particles.emplace_back( p.px(), p.py(), p.pz(), p.e()  );
-	  fj_particles.back().set_user_index( i );
-	  genmap[i] = nGen;
-	} 
 	++nGen;
 	if ( nGen >= kMaxGen ){
 	  std::cout << "too many particles in event " << iEvent << ", storing first " << kMaxGen << std::endl;
 	  break;
-	}	
+	}
+      } else if ( p.isFinal() || p.isHadron() ) {
+
+	if ( verbose ) {
+	  char buff[1000];
+	  sprintf( buff, "  ndx=%6d, id=%6d, status=%6d, p4=(%6.4f,%6.2f,%6.2f,%6.4f)", i, p.id(), p.status(), p.pT(), p.eta(), p.phi(), p.m() );
+	  std::cout << buff << std::endl; 
+	}
+	constituent_pt[nConstituent] = p.pT();
+	constituent_eta[nConstituent] = p.eta();
+	constituent_phi[nConstituent] = p.phi();
+	constituent_m[nConstituent] = p.m();
+	constituent_orig[nConstituent] = i;
+	constituent_id[nConstituent] =         p.id();
+	constituent_flags[nConstituent] =      p.isHadron() << 3 | p.isFinal() << 2 | p.isFinalPartonLevel() << 1 | p.isVisible() << 0; 
+	constituent_status[nConstituent] =     p.status();    
+	constituent_mother1[nConstituent] =    p.mother1();   
+	constituent_mother2[nConstituent] =    p.mother2();   
+	constituent_daughter1[nConstituent] =  p.daughter1(); 
+	constituent_daughter2[nConstituent] =  p.daughter2(); 
+	constituent_col[nConstituent] =        p.col();       
+	constituent_vxx[nConstituent] =        p.xProd();       
+	constituent_vyy[nConstituent] =        p.yProd();       
+	constituent_vzz[nConstituent] =        p.zProd();       
+	constituent_tau[nConstituent] =        p.tau();             
+	if ( p.isFinal() ) {
+	  fj_particles.emplace_back( p.px(), p.py(), p.pz(), p.e()  );
+	  fj_particles.back().set_user_index( i );
+	  constituentmap[i] = nConstituent;
+	} 
+	++nConstituent;
+	if ( nConstituent >= kMaxConstituent ){
+	  std::cout << "too many particles in event " << iEvent << ", storing first " << kMaxConstituent << std::endl;
+	  break;
+	}
       }
     }
     if ( verbose) std::cout << "About to cluster" << std::endl;
@@ -274,10 +392,18 @@ int main(int argc, char ** argv) {
 	  jet_pt[nJet]=ijet->perp();
 	  jet_eta[nJet]=ijet->eta();
 	  jet_phi[nJet]=ijet->phi();
-	  jet_m[nJet]=ijet->m();
-	  jet_msd[nJet] = sd_jet.m(); 
+	  jet_m[nJet]=ijet->m();	  
+	  jet_msd[nJet] = sd_jet.m();
+	  // calculate Nsubjettiness values (beta = 1.0)
+	  std::vector<Float_t *> taus = { jet_tau1, jet_tau2, jet_tau3, jet_tau4, jet_tau5, jet_tau6, jet_tau7, jet_tau8};
+	  for ( unsigned int itau = 0; itau < taus.size(); ++itau ){
+	    taus[itau][nJet] = nSub_beta1[itau](*ijet);
+	  }
+	  
 	  jet_nc[nJet] = constituents.size();
 	  auto subjets = sd_jet.pieces();
+	  jet_nsubjet[nJet] = subjets.size(); 
+
 	  if ( subjets.size() >= 1 ) {
 	    jet_subjet0_pt[nJet]  = subjets[0].perp();
 	    jet_subjet0_eta[nJet] = subjets[0].eta();
@@ -289,7 +415,12 @@ int main(int argc, char ** argv) {
 	    jet_subjet1_eta[nJet] = subjets[1].eta();
 	    jet_subjet1_phi[nJet] = subjets[1].phi();
 	    jet_subjet1_m[nJet]   = subjets[1].m();	    
-	  }	  
+	  } else{
+	    jet_subjet1_pt[nJet]  = 0;
+	    jet_subjet1_eta[nJet] = 0;
+	    jet_subjet1_phi[nJet] = 0;
+	    jet_subjet1_m[nJet]   = 0;
+	  }
 	  if ( constituents.size() > 0 ) {	    
 	    auto jbegin = constituents.begin();
 	    auto jend = constituents.end();
@@ -297,7 +428,7 @@ int main(int argc, char ** argv) {
 	    for ( auto iparticle=jbegin; iparticle != jend;++iparticle ){
 	      
 	      auto index = iparticle->user_index();
-	      jet_ic[nJet][nParticle] = genmap[index];
+	      jet_ic[nJet][nParticle] = constituentmap[index];
 	      if ( verbose ) std::cout << index << " ";
 	      ++nParticle;
 	    }
