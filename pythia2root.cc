@@ -71,6 +71,7 @@ int main(int argc, char ** argv) {
   const Int_t kMaxJet = 10;                       // Stores leading 10 jets
   const Int_t kMaxGen = 5000;                     // and 1000 of the generator particles
   const Int_t kMaxConstituent = 5000;            // and 1000 of the jet constituents
+  ULong64_t eventNum = 0;                         // need to store an event number for uproot access
   Int_t nJet=0;
   Float_t jet_pt[kMaxJet];
   Float_t jet_eta[kMaxJet];
@@ -136,7 +137,8 @@ int main(int argc, char ** argv) {
   Float_t   constituent_vzz[kMaxConstituent];
   Float_t   constituent_tau[kMaxConstituent];
 
-  TTree * T = new TTree("T","ev1 Tree");         // Allocate the tree, but DO NOT DELETE IT since ROOT takes ownership magically. 
+  TTree * T = new TTree("T","ev1 Tree");         // Allocate the tree, but DO NOT DELETE IT since ROOT takes ownership magically.
+  T->Branch("eventNum",    &eventNum,  "eventNum/l");
   T->Branch("nJet",    &nJet,  "nJet/I");
   T->Branch("jet_pt",  &jet_pt,  "jet_pt[nJet]/F");
   T->Branch("jet_eta", &jet_eta, "jet_eta[nJet]/F");
@@ -203,6 +205,7 @@ int main(int argc, char ** argv) {
   
  // Begin event loop. Generate event; skip if generation aborted.
   for (int iEvent = 0; iEvent < nEvents; ++iEvent) {
+    eventNum = iEvent; 
     nConstituent = nGen = nJet = 0;
     if (!pythia.next()) continue;
     if ( verbose ) 
