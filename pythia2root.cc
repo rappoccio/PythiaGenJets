@@ -22,6 +22,20 @@
 
 using namespace Pythia8;
 
+class CompareIndex {
+public:
+  CompareIndex( fastjet::PseudoJet j ) : i_(j.user_index()){
+  }
+  CompareIndex( unsigned int j = 0 ) : i_(j){
+  }
+
+  bool operator() ( fastjet::PseudoJet const & j ) const { return j.user_index() == i_; }
+  bool operator() ( unsigned int j ) const { return j == i_; }
+
+protected : 
+  unsigned int i_; 
+};
+
 int main(int argc, char ** argv) {
 
   if ( argc < 4 ) {
@@ -124,6 +138,8 @@ int main(int argc, char ** argv) {
   Float_t constituent_eta[kMaxConstituent];
   Float_t constituent_phi[kMaxConstituent];
   Float_t constituent_m[kMaxConstituent];
+  Int_t   constituent_jetndx[kMaxConstituent];
+  Int_t   constituent_subjetndx[kMaxConstituent];
   Int_t   constituent_id[kMaxConstituent];
   Int_t   constituent_flags[kMaxConstituent];
   Int_t   constituent_status[kMaxConstituent];
@@ -190,6 +206,8 @@ int main(int argc, char ** argv) {
   T->Branch("constituent_m",         &constituent_m,   "constituent_m[nConstituent]/F");
   T->Branch("constituent_flags",     &constituent_flags,     "constituent_flags[nConstituent]/I");
   T->Branch("constituent_id",        &constituent_id,        "constituent_id[nConstituent]/I"       );
+  T->Branch("constituent_jetndx",    &constituent_jetndx,    "constituent_jetndx[nConstituent]/I"   );
+  T->Branch("constituent_subjetndx", &constituent_subjetndx, "constituent_subjetndx[nConstituent]/I");
   T->Branch("constituent_status",    &constituent_status,    "constituent_status[nConstituent]/I"   );
   T->Branch("constituent_mother1",   &constituent_mother1,   "constituent_mother1[nConstituent]/I"  );
   T->Branch("constituent_mother2",   &constituent_mother2,   "constituent_mother2[nConstituent]/I"  );
@@ -257,6 +275,8 @@ int main(int argc, char ** argv) {
     for ( auto x : constituent_phi ) x=0.0;
     for ( auto x : constituent_m ) x=0.0;
     for ( auto x : constituent_flags ) x = 0;
+    for ( auto x : constituent_jetndx ) x = -1;
+    for ( auto x : constituent_subjetndx ) x = -1;
     for ( auto x : constituent_id ) x = 0;
     for ( auto x : constituent_status ) x = 0;
     for ( auto x : constituent_mother1 ) x = 0;
@@ -305,16 +325,13 @@ int main(int argc, char ** argv) {
 	}
       } else if ( p.isFinal() ) {
 
-	if ( verbose ) {
-	  char buff[1000];
-	  sprintf( buff, "  ndx=%6d, id=%6d, status=%6d, p4=(%6.4f,%6.2f,%6.2f,%6.4f)", i, p.id(), p.status(), p.pT(), p.eta(), p.phi(), p.m() );
-	  std::cout << buff << std::endl; 
-	}
 	constituent_pt[nConstituent] = p.pT();
 	constituent_eta[nConstituent] = p.eta();
 	constituent_phi[nConstituent] = p.phi();
 	constituent_m[nConstituent] = p.m();
 	constituent_orig[nConstituent] = i;
+	constituent_jetndx[nConstituent] =     -1; // set later
+	constituent_subjetndx[nConstituent] =  -1; // set later
 	constituent_id[nConstituent] =         p.id();
 	constituent_flags[nConstituent] =      p.isHadron() << 3 | p.isFinal() << 2 | p.isFinalPartonLevel() << 1 | p.isVisible() << 0; 
 	constituent_status[nConstituent] =     p.status();    
@@ -413,22 +430,30 @@ int main(int argc, char ** argv) {
 	    jet_tau7[nJet] = nSub7_beta1(*ijet);
 	    jet_tau8[nJet] = nSub8_beta1(*ijet);
 	  }
+
+
 	  
 	  jet_nc[nJet] = constituents.size();
 	  auto subjets = sd_jet.pieces();
+	  
 	  jet_nsubjet[nJet] = subjets.size(); 
+	  std::vector<fastjet::PseudoJet> sj0_pieces, sj1_pieces; 
 
 	  if ( subjets.size() >= 1 ) {
 	    jet_subjet0_pt[nJet]  = subjets[0].perp();
 	    jet_subjet0_eta[nJet] = subjets[0].eta();
 	    jet_subjet0_phi[nJet] = subjets[0].phi();
 	    jet_subjet0_m[nJet]   = subjets[0].m();	    
+	    auto ipieces = subjets[0].constituents();
+	    sj0_pieces.insert( sj0_pieces.begin(), ipieces.begin(), ipieces.end() );
 	  }
 	  if ( subjets.size() >= 2 ) {
 	    jet_subjet1_pt[nJet]  = subjets[1].perp();
 	    jet_subjet1_eta[nJet] = subjets[1].eta();
 	    jet_subjet1_phi[nJet] = subjets[1].phi();
-	    jet_subjet1_m[nJet]   = subjets[1].m();	    
+	    jet_subjet1_m[nJet]   = subjets[1].m();
+	    auto ipieces = subjets[1].constituents();
+	    sj1_pieces.insert( sj1_pieces.begin(), ipieces.begin(), ipieces.end() );
 	  } else{
 	    jet_subjet1_pt[nJet]  = 0;
 	    jet_subjet1_eta[nJet] = 0;
@@ -443,6 +468,17 @@ int main(int argc, char ** argv) {
 	      
 	      auto index = iparticle->user_index();
 	      jet_ic[nJet][nParticle] = constituentmap[index];
+	      constituent_jetndx[constituentmap[index]] = nJet;
+	      
+	      auto sj0_find = std::find_if( sj0_pieces.begin(), sj0_pieces.end(), CompareIndex(*iparticle) );
+	      auto sj1_find = std::find_if( sj1_pieces.begin(), sj1_pieces.end(), CompareIndex(*iparticle) );
+	      if ( sj0_find != sj0_pieces.end() ){
+		constituent_subjetndx[constituentmap[index]]=0;
+	      } else if ( sj1_find != sj1_pieces.end() ) {
+		constituent_subjetndx[constituentmap[index]]=1;
+	      } else {
+		constituent_subjetndx[constituentmap[index]]=-1;
+	      }
 	      if ( verbose ) std::cout << index << " ";
 	      ++nParticle;
 	    }
@@ -459,8 +495,7 @@ int main(int argc, char ** argv) {
       }
       if ( verbose ) 
 	std::cout << "Done writing." << std::endl;
-    }
-
+    } // end check if jets.size() > 0
   // End event loop.
   }
 
