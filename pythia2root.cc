@@ -100,6 +100,15 @@ int main(int argc, char ** argv) {
   Float_t jet_tau6[kMaxJet];
   Float_t jet_tau7[kMaxJet];
   Float_t jet_tau8[kMaxJet];
+
+  Float_t jet_tau1_sd[kMaxJet];
+  Float_t jet_tau2_sd[kMaxJet];
+  Float_t jet_tau3_sd[kMaxJet];
+  Float_t jet_tau4_sd[kMaxJet];
+  Float_t jet_tau5_sd[kMaxJet];
+  Float_t jet_tau6_sd[kMaxJet];
+  Float_t jet_tau7_sd[kMaxJet];
+  Float_t jet_tau8_sd[kMaxJet];
   
   Int_t   jet_nc[kMaxJet];
   Int_t   jet_ic[kMaxJet][50];
@@ -169,6 +178,14 @@ int main(int argc, char ** argv) {
   T->Branch("jet_tau6",   &jet_tau6,   "jet_tau6[nJet]/F");
   T->Branch("jet_tau7",   &jet_tau7,   "jet_tau7[nJet]/F");
   T->Branch("jet_tau8",   &jet_tau8,   "jet_tau8[nJet]/F");
+  T->Branch("jet_tau1_sd",   &jet_tau1_sd,   "jet_tau1_sd[nJet]/F");
+  T->Branch("jet_tau2_sd",   &jet_tau2_sd,   "jet_tau2_sd[nJet]/F");
+  T->Branch("jet_tau3_sd",   &jet_tau3_sd,   "jet_tau3_sd[nJet]/F");
+  T->Branch("jet_tau4_sd",   &jet_tau4_sd,   "jet_tau4_sd[nJet]/F");
+  T->Branch("jet_tau5_sd",   &jet_tau5_sd,   "jet_tau5_sd[nJet]/F");
+  T->Branch("jet_tau6_sd",   &jet_tau6_sd,   "jet_tau6_sd[nJet]/F");
+  T->Branch("jet_tau7_sd",   &jet_tau7_sd,   "jet_tau7_sd[nJet]/F");
+  T->Branch("jet_tau8_sd",   &jet_tau8_sd,   "jet_tau8_sd[nJet]/F");
   T->Branch("jet_nc",  &jet_nc,  "jet_nc[nJet]/I");
   T->Branch("jet_ic",  &jet_ic,  "jet_ic[nJet][50]/I");
   T->Branch("jet_nsubjet",  &jet_nsubjet,  "jet_nsubjet[nJet]/I");
@@ -241,6 +258,14 @@ int main(int argc, char ** argv) {
     for ( auto x : jet_tau6 ) x=0.0;
     for ( auto x : jet_tau7 ) x=0.0;
     for ( auto x : jet_tau8 ) x=0.0;
+    for ( auto x : jet_tau1_sd ) x=0.0;
+    for ( auto x : jet_tau2_sd ) x=0.0;
+    for ( auto x : jet_tau3_sd ) x=0.0;
+    for ( auto x : jet_tau4_sd ) x=0.0;
+    for ( auto x : jet_tau5_sd ) x=0.0;
+    for ( auto x : jet_tau6_sd ) x=0.0;
+    for ( auto x : jet_tau7_sd ) x=0.0;
+    for ( auto x : jet_tau8_sd ) x=0.0;
     for ( auto x : jet_nc ) x=0;
     for ( auto x : jet_nsubjet ) x=0;
     for ( auto i = 0; i < kMaxJet; ++i )
@@ -429,6 +454,15 @@ int main(int argc, char ** argv) {
 	    jet_tau6[nJet] = nSub6_beta1(*ijet);
 	    jet_tau7[nJet] = nSub7_beta1(*ijet);
 	    jet_tau8[nJet] = nSub8_beta1(*ijet);
+
+	    jet_tau1_sd[nJet] = nSub1_beta1(sd_jet);
+	    jet_tau2_sd[nJet] = nSub2_beta1(sd_jet);
+	    jet_tau3_sd[nJet] = nSub3_beta1(sd_jet);
+	    jet_tau4_sd[nJet] = nSub4_beta1(sd_jet);
+	    jet_tau5_sd[nJet] = nSub5_beta1(sd_jet);
+	    jet_tau6_sd[nJet] = nSub6_beta1(sd_jet);
+	    jet_tau7_sd[nJet] = nSub7_beta1(sd_jet);
+	    jet_tau8_sd[nJet] = nSub8_beta1(sd_jet);
 	  }
 
 
