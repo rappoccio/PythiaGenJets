@@ -43,11 +43,6 @@ int main(int argc, char ** argv) {
     return 0;
   }
 
-  // Define Nsubjettiness functions for beta = 1.0 using one-pass WTA KT axes
-
-  double beta_nsj = 1.0;
-  const Int_t max_nsj = 8;
-
 
   // Define the AK8 jet finder.
   double R = 0.8, ptmin = 30.0, lepfrac = 0.9;
@@ -84,7 +79,8 @@ int main(int argc, char ** argv) {
   Event *event = &pythia.event;
   const Int_t kMaxJet = 10;                       // Stores leading 10 jets
   const Int_t kMaxGen = 5000;                     // and 1000 of the generator particles
-  const Int_t kMaxConstituent = 5000;            // and 1000 of the jet constituents
+  const Int_t kMaxConstituent = 5000;             // and 1000 of the jet constituents
+  const Int_t kMaxNsjBeta = 4;                    // Various tau beta values
   ULong64_t eventNum = 0;                         // need to store an event number for uproot access
   Int_t nJet=0;
   Float_t jet_pt[kMaxJet];
@@ -92,23 +88,24 @@ int main(int argc, char ** argv) {
   Float_t jet_phi[kMaxJet];
   Float_t jet_m[kMaxJet];
   Float_t jet_msd[kMaxJet];
-  Float_t jet_tau1[kMaxJet];
-  Float_t jet_tau2[kMaxJet];
-  Float_t jet_tau3[kMaxJet];
-  Float_t jet_tau4[kMaxJet];
-  Float_t jet_tau5[kMaxJet];
-  Float_t jet_tau6[kMaxJet];
-  Float_t jet_tau7[kMaxJet];
-  Float_t jet_tau8[kMaxJet];
+  Float_t jet_tau1[kMaxNsjBeta][kMaxJet];
+  Float_t jet_tau2[kMaxNsjBeta][kMaxJet];
+  Float_t jet_tau3[kMaxNsjBeta][kMaxJet];
+  Float_t jet_tau4[kMaxNsjBeta][kMaxJet];
+  Float_t jet_tau5[kMaxNsjBeta][kMaxJet];
+  Float_t jet_tau6[kMaxNsjBeta][kMaxJet];
+  Float_t jet_tau7[kMaxNsjBeta][kMaxJet];
+  Float_t jet_tau8[kMaxNsjBeta][kMaxJet];
+  Float_t jet_tau1_sd[kMaxNsjBeta][kMaxJet];
+  Float_t jet_tau2_sd[kMaxNsjBeta][kMaxJet];
+  Float_t jet_tau3_sd[kMaxNsjBeta][kMaxJet];
+  Float_t jet_tau4_sd[kMaxNsjBeta][kMaxJet];
+  Float_t jet_tau5_sd[kMaxNsjBeta][kMaxJet];
+  Float_t jet_tau6_sd[kMaxNsjBeta][kMaxJet];
+  Float_t jet_tau7_sd[kMaxNsjBeta][kMaxJet];
+  Float_t jet_tau8_sd[kMaxNsjBeta][kMaxJet];
 
-  Float_t jet_tau1_sd[kMaxJet];
-  Float_t jet_tau2_sd[kMaxJet];
-  Float_t jet_tau3_sd[kMaxJet];
-  Float_t jet_tau4_sd[kMaxJet];
-  Float_t jet_tau5_sd[kMaxJet];
-  Float_t jet_tau6_sd[kMaxJet];
-  Float_t jet_tau7_sd[kMaxJet];
-  Float_t jet_tau8_sd[kMaxJet];
+
   
   Int_t   jet_nc[kMaxJet];
   Int_t   jet_ic[kMaxJet][50];
@@ -170,22 +167,22 @@ int main(int argc, char ** argv) {
   T->Branch("jet_phi", &jet_phi, "jet_phi[nJet]/F");
   T->Branch("jet_m",   &jet_m,   "jet_m[nJet]/F");
   T->Branch("jet_msd",   &jet_msd,   "jet_msd[nJet]/F");
-  T->Branch("jet_tau1",   &jet_tau1,   "jet_tau1[nJet]/F");
-  T->Branch("jet_tau2",   &jet_tau2,   "jet_tau2[nJet]/F");
-  T->Branch("jet_tau3",   &jet_tau3,   "jet_tau3[nJet]/F");
-  T->Branch("jet_tau4",   &jet_tau4,   "jet_tau4[nJet]/F");
-  T->Branch("jet_tau5",   &jet_tau5,   "jet_tau5[nJet]/F");
-  T->Branch("jet_tau6",   &jet_tau6,   "jet_tau6[nJet]/F");
-  T->Branch("jet_tau7",   &jet_tau7,   "jet_tau7[nJet]/F");
-  T->Branch("jet_tau8",   &jet_tau8,   "jet_tau8[nJet]/F");
-  T->Branch("jet_tau1_sd",   &jet_tau1_sd,   "jet_tau1_sd[nJet]/F");
-  T->Branch("jet_tau2_sd",   &jet_tau2_sd,   "jet_tau2_sd[nJet]/F");
-  T->Branch("jet_tau3_sd",   &jet_tau3_sd,   "jet_tau3_sd[nJet]/F");
-  T->Branch("jet_tau4_sd",   &jet_tau4_sd,   "jet_tau4_sd[nJet]/F");
-  T->Branch("jet_tau5_sd",   &jet_tau5_sd,   "jet_tau5_sd[nJet]/F");
-  T->Branch("jet_tau6_sd",   &jet_tau6_sd,   "jet_tau6_sd[nJet]/F");
-  T->Branch("jet_tau7_sd",   &jet_tau7_sd,   "jet_tau7_sd[nJet]/F");
-  T->Branch("jet_tau8_sd",   &jet_tau8_sd,   "jet_tau8_sd[nJet]/F");
+  T->Branch("jet_tau1",   &jet_tau1,   "jet_tau1[4][nJet]/F");
+  T->Branch("jet_tau2",   &jet_tau2,   "jet_tau2[4][nJet]/F");
+  T->Branch("jet_tau3",   &jet_tau3,   "jet_tau3[4][nJet]/F");
+  T->Branch("jet_tau4",   &jet_tau4,   "jet_tau4[4][nJet]/F");
+  T->Branch("jet_tau5",   &jet_tau5,   "jet_tau5[4][nJet]/F");
+  T->Branch("jet_tau6",   &jet_tau6,   "jet_tau6[4][nJet]/F");
+  T->Branch("jet_tau7",   &jet_tau7,   "jet_tau7[4][nJet]/F");
+  T->Branch("jet_tau8",   &jet_tau8,   "jet_tau8[4][nJet]/F");
+  T->Branch("jet_tau1_sd",   &jet_tau1_sd,   "jet_tau1_sd[4][nJet]/F");
+  T->Branch("jet_tau2_sd",   &jet_tau2_sd,   "jet_tau2_sd[4][nJet]/F");
+  T->Branch("jet_tau3_sd",   &jet_tau3_sd,   "jet_tau3_sd[4][nJet]/F");
+  T->Branch("jet_tau4_sd",   &jet_tau4_sd,   "jet_tau4_sd[4][nJet]/F");
+  T->Branch("jet_tau5_sd",   &jet_tau5_sd,   "jet_tau5_sd[4][nJet]/F");
+  T->Branch("jet_tau6_sd",   &jet_tau6_sd,   "jet_tau6_sd[4][nJet]/F");
+  T->Branch("jet_tau7_sd",   &jet_tau7_sd,   "jet_tau7_sd[4][nJet]/F");
+  T->Branch("jet_tau8_sd",   &jet_tau8_sd,   "jet_tau8_sd[4][nJet]/F");
   T->Branch("jet_nc",  &jet_nc,  "jet_nc[nJet]/I");
   T->Branch("jet_ic",  &jet_ic,  "jet_ic[nJet][50]/I");
   T->Branch("jet_nsubjet",  &jet_nsubjet,  "jet_nsubjet[nJet]/I");
@@ -250,22 +247,26 @@ int main(int argc, char ** argv) {
     for ( auto x : jet_phi ) x=0.0;
     for ( auto x : jet_m ) x=0.0;
     for ( auto x : jet_msd ) x=0.0;
-    for ( auto x : jet_tau1 ) x=0.0;
-    for ( auto x : jet_tau2 ) x=0.0;
-    for ( auto x : jet_tau3 ) x=0.0;
-    for ( auto x : jet_tau4 ) x=0.0;
-    for ( auto x : jet_tau5 ) x=0.0;
-    for ( auto x : jet_tau6 ) x=0.0;
-    for ( auto x : jet_tau7 ) x=0.0;
-    for ( auto x : jet_tau8 ) x=0.0;
-    for ( auto x : jet_tau1_sd ) x=0.0;
-    for ( auto x : jet_tau2_sd ) x=0.0;
-    for ( auto x : jet_tau3_sd ) x=0.0;
-    for ( auto x : jet_tau4_sd ) x=0.0;
-    for ( auto x : jet_tau5_sd ) x=0.0;
-    for ( auto x : jet_tau6_sd ) x=0.0;
-    for ( auto x : jet_tau7_sd ) x=0.0;
-    for ( auto x : jet_tau8_sd ) x=0.0;
+
+
+    for( unsigned int j = 0; j < kMaxNsjBeta; ++j ){
+      for ( auto x : jet_tau1    [j] )  x=0.0;
+      for ( auto x : jet_tau2    [j] )  x=0.0;
+      for ( auto x : jet_tau3    [j] )  x=0.0;
+      for ( auto x : jet_tau4    [j] )  x=0.0;
+      for ( auto x : jet_tau5    [j] )  x=0.0;
+      for ( auto x : jet_tau6    [j] )  x=0.0;
+      for ( auto x : jet_tau7    [j] )  x=0.0;
+      for ( auto x : jet_tau8    [j] )  x=0.0;
+      for ( auto x : jet_tau1_sd [j] )  x=0.0;
+      for ( auto x : jet_tau2_sd [j] )  x=0.0;
+      for ( auto x : jet_tau3_sd [j] )  x=0.0;
+      for ( auto x : jet_tau4_sd [j] )  x=0.0;
+      for ( auto x : jet_tau5_sd [j] )  x=0.0;
+      for ( auto x : jet_tau6_sd [j] )  x=0.0;
+      for ( auto x : jet_tau7_sd [j] )  x=0.0;
+      for ( auto x : jet_tau8_sd [j] )  x=0.0;
+    }
     for ( auto x : jet_nc ) x=0;
     for ( auto x : jet_nsubjet ) x=0;
     for ( auto i = 0; i < kMaxJet; ++i )
@@ -437,35 +438,45 @@ int main(int argc, char ** argv) {
 	  jet_msd[nJet] = sd_jet.m();
 
 	  if ( nJet < 20 ) { //N-jettiness is hard-coded to only allow up to 20 jets
-	    fastjet::contrib::Nsubjettiness nSub1_beta1(1, fastjet::contrib::OnePass_WTA_KT_Axes(), fastjet::contrib::UnnormalizedMeasure(beta_nsj));
-	    fastjet::contrib::Nsubjettiness nSub2_beta1(2, fastjet::contrib::OnePass_WTA_KT_Axes(), fastjet::contrib::UnnormalizedMeasure(beta_nsj));
-	    fastjet::contrib::Nsubjettiness nSub3_beta1(3, fastjet::contrib::OnePass_WTA_KT_Axes(), fastjet::contrib::UnnormalizedMeasure(beta_nsj));
-	    fastjet::contrib::Nsubjettiness nSub4_beta1(4, fastjet::contrib::OnePass_WTA_KT_Axes(), fastjet::contrib::UnnormalizedMeasure(beta_nsj));
-	    fastjet::contrib::Nsubjettiness nSub5_beta1(5, fastjet::contrib::OnePass_WTA_KT_Axes(), fastjet::contrib::UnnormalizedMeasure(beta_nsj));
-	    fastjet::contrib::Nsubjettiness nSub6_beta1(6, fastjet::contrib::OnePass_WTA_KT_Axes(), fastjet::contrib::UnnormalizedMeasure(beta_nsj));
-	    fastjet::contrib::Nsubjettiness nSub7_beta1(7, fastjet::contrib::OnePass_WTA_KT_Axes(), fastjet::contrib::UnnormalizedMeasure(beta_nsj));
-	    fastjet::contrib::Nsubjettiness nSub8_beta1(8, fastjet::contrib::OnePass_WTA_KT_Axes(), fastjet::contrib::UnnormalizedMeasure(beta_nsj));
 
-	    jet_tau1[nJet] = nSub1_beta1(*ijet);
-	    jet_tau2[nJet] = nSub2_beta1(*ijet);
-	    jet_tau3[nJet] = nSub3_beta1(*ijet);
-	    jet_tau4[nJet] = nSub4_beta1(*ijet);
-	    jet_tau5[nJet] = nSub5_beta1(*ijet);
-	    jet_tau6[nJet] = nSub6_beta1(*ijet);
-	    jet_tau7[nJet] = nSub7_beta1(*ijet);
-	    jet_tau8[nJet] = nSub8_beta1(*ijet);
 
-	    jet_tau1_sd[nJet] = nSub1_beta1(sd_jet);
-	    jet_tau2_sd[nJet] = nSub2_beta1(sd_jet);
-	    jet_tau3_sd[nJet] = nSub3_beta1(sd_jet);
-	    jet_tau4_sd[nJet] = nSub4_beta1(sd_jet);
-	    jet_tau5_sd[nJet] = nSub5_beta1(sd_jet);
-	    jet_tau6_sd[nJet] = nSub6_beta1(sd_jet);
-	    jet_tau7_sd[nJet] = nSub7_beta1(sd_jet);
-	    jet_tau8_sd[nJet] = nSub8_beta1(sd_jet);
+	    // Define Nsubjettiness functions for beta = 1.0 using one-pass WTA KT axes
+
+	    
+	    for ( unsigned int nsj_index = 0; nsj_index < kMaxNsjBeta; ++nsj_index) {
+	      double beta_nsj = 0.5 + 0.5*nsj_index;
+	      const Int_t max_nsj = 8;
+
+
+	      fastjet::contrib::Nsubjettiness nSub1_beta1(1, fastjet::contrib::OnePass_WTA_KT_Axes(), fastjet::contrib::UnnormalizedMeasure(beta_nsj));
+	      fastjet::contrib::Nsubjettiness nSub2_beta1(2, fastjet::contrib::OnePass_WTA_KT_Axes(), fastjet::contrib::UnnormalizedMeasure(beta_nsj));
+	      fastjet::contrib::Nsubjettiness nSub3_beta1(3, fastjet::contrib::OnePass_WTA_KT_Axes(), fastjet::contrib::UnnormalizedMeasure(beta_nsj));
+	      fastjet::contrib::Nsubjettiness nSub4_beta1(4, fastjet::contrib::OnePass_WTA_KT_Axes(), fastjet::contrib::UnnormalizedMeasure(beta_nsj));
+	      fastjet::contrib::Nsubjettiness nSub5_beta1(5, fastjet::contrib::OnePass_WTA_KT_Axes(), fastjet::contrib::UnnormalizedMeasure(beta_nsj));
+	      fastjet::contrib::Nsubjettiness nSub6_beta1(6, fastjet::contrib::OnePass_WTA_KT_Axes(), fastjet::contrib::UnnormalizedMeasure(beta_nsj));
+	      fastjet::contrib::Nsubjettiness nSub7_beta1(7, fastjet::contrib::OnePass_WTA_KT_Axes(), fastjet::contrib::UnnormalizedMeasure(beta_nsj));
+	      fastjet::contrib::Nsubjettiness nSub8_beta1(8, fastjet::contrib::OnePass_WTA_KT_Axes(), fastjet::contrib::UnnormalizedMeasure(beta_nsj));
+
+	      jet_tau1[nsj_index][nJet] = nSub1_beta1(*ijet);
+	      jet_tau2[nsj_index][nJet] = nSub2_beta1(*ijet);
+	      jet_tau3[nsj_index][nJet] = nSub3_beta1(*ijet);
+	      jet_tau4[nsj_index][nJet] = nSub4_beta1(*ijet);
+	      jet_tau5[nsj_index][nJet] = nSub5_beta1(*ijet);
+	      jet_tau6[nsj_index][nJet] = nSub6_beta1(*ijet);
+	      jet_tau7[nsj_index][nJet] = nSub7_beta1(*ijet);
+	      jet_tau8[nsj_index][nJet] = nSub8_beta1(*ijet);
+
+	      jet_tau1_sd[nsj_index][nJet] = nSub1_beta1(sd_jet);
+	      jet_tau2_sd[nsj_index][nJet] = nSub2_beta1(sd_jet);
+	      jet_tau3_sd[nsj_index][nJet] = nSub3_beta1(sd_jet);
+	      jet_tau4_sd[nsj_index][nJet] = nSub4_beta1(sd_jet);
+	      jet_tau5_sd[nsj_index][nJet] = nSub5_beta1(sd_jet);
+	      jet_tau6_sd[nsj_index][nJet] = nSub6_beta1(sd_jet);
+	      jet_tau7_sd[nsj_index][nJet] = nSub7_beta1(sd_jet);
+	      jet_tau8_sd[nsj_index][nJet] = nSub8_beta1(sd_jet);
+	    }
+
 	  }
-
-
 	  
 	  jet_nc[nJet] = constituents.size();
 	  auto subjets = sd_jet.pieces();
