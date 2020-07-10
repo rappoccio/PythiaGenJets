@@ -88,22 +88,22 @@ int main(int argc, char ** argv) {
   Float_t jet_phi[kMaxJet];
   Float_t jet_m[kMaxJet];
   Float_t jet_msd[kMaxJet];
-  Float_t jet_tau1[kMaxNsjBeta][kMaxJet];
-  Float_t jet_tau2[kMaxNsjBeta][kMaxJet];
-  Float_t jet_tau3[kMaxNsjBeta][kMaxJet];
-  Float_t jet_tau4[kMaxNsjBeta][kMaxJet];
-  Float_t jet_tau5[kMaxNsjBeta][kMaxJet];
-  Float_t jet_tau6[kMaxNsjBeta][kMaxJet];
-  Float_t jet_tau7[kMaxNsjBeta][kMaxJet];
-  Float_t jet_tau8[kMaxNsjBeta][kMaxJet];
-  Float_t jet_tau1_sd[kMaxNsjBeta][kMaxJet];
-  Float_t jet_tau2_sd[kMaxNsjBeta][kMaxJet];
-  Float_t jet_tau3_sd[kMaxNsjBeta][kMaxJet];
-  Float_t jet_tau4_sd[kMaxNsjBeta][kMaxJet];
-  Float_t jet_tau5_sd[kMaxNsjBeta][kMaxJet];
-  Float_t jet_tau6_sd[kMaxNsjBeta][kMaxJet];
-  Float_t jet_tau7_sd[kMaxNsjBeta][kMaxJet];
-  Float_t jet_tau8_sd[kMaxNsjBeta][kMaxJet];
+  Float_t jet_tau1   [kMaxJet][kMaxNsjBeta];
+  Float_t jet_tau2   [kMaxJet][kMaxNsjBeta];
+  Float_t jet_tau3   [kMaxJet][kMaxNsjBeta];
+  Float_t jet_tau4   [kMaxJet][kMaxNsjBeta];
+  Float_t jet_tau5   [kMaxJet][kMaxNsjBeta];
+  Float_t jet_tau6   [kMaxJet][kMaxNsjBeta];
+  Float_t jet_tau7   [kMaxJet][kMaxNsjBeta];
+  Float_t jet_tau8   [kMaxJet][kMaxNsjBeta];
+  Float_t jet_tau1_sd[kMaxJet][kMaxNsjBeta];
+  Float_t jet_tau2_sd[kMaxJet][kMaxNsjBeta];
+  Float_t jet_tau3_sd[kMaxJet][kMaxNsjBeta];
+  Float_t jet_tau4_sd[kMaxJet][kMaxNsjBeta];
+  Float_t jet_tau5_sd[kMaxJet][kMaxNsjBeta];
+  Float_t jet_tau6_sd[kMaxJet][kMaxNsjBeta];
+  Float_t jet_tau7_sd[kMaxJet][kMaxNsjBeta];
+  Float_t jet_tau8_sd[kMaxJet][kMaxNsjBeta];
 
 
   
@@ -167,22 +167,22 @@ int main(int argc, char ** argv) {
   T->Branch("jet_phi", &jet_phi, "jet_phi[nJet]/F");
   T->Branch("jet_m",   &jet_m,   "jet_m[nJet]/F");
   T->Branch("jet_msd",   &jet_msd,   "jet_msd[nJet]/F");
-  T->Branch("jet_tau1",   &jet_tau1,   "jet_tau1[4][nJet]/F");
-  T->Branch("jet_tau2",   &jet_tau2,   "jet_tau2[4][nJet]/F");
-  T->Branch("jet_tau3",   &jet_tau3,   "jet_tau3[4][nJet]/F");
-  T->Branch("jet_tau4",   &jet_tau4,   "jet_tau4[4][nJet]/F");
-  T->Branch("jet_tau5",   &jet_tau5,   "jet_tau5[4][nJet]/F");
-  T->Branch("jet_tau6",   &jet_tau6,   "jet_tau6[4][nJet]/F");
-  T->Branch("jet_tau7",   &jet_tau7,   "jet_tau7[4][nJet]/F");
-  T->Branch("jet_tau8",   &jet_tau8,   "jet_tau8[4][nJet]/F");
-  T->Branch("jet_tau1_sd",   &jet_tau1_sd,   "jet_tau1_sd[4][nJet]/F");
-  T->Branch("jet_tau2_sd",   &jet_tau2_sd,   "jet_tau2_sd[4][nJet]/F");
-  T->Branch("jet_tau3_sd",   &jet_tau3_sd,   "jet_tau3_sd[4][nJet]/F");
-  T->Branch("jet_tau4_sd",   &jet_tau4_sd,   "jet_tau4_sd[4][nJet]/F");
-  T->Branch("jet_tau5_sd",   &jet_tau5_sd,   "jet_tau5_sd[4][nJet]/F");
-  T->Branch("jet_tau6_sd",   &jet_tau6_sd,   "jet_tau6_sd[4][nJet]/F");
-  T->Branch("jet_tau7_sd",   &jet_tau7_sd,   "jet_tau7_sd[4][nJet]/F");
-  T->Branch("jet_tau8_sd",   &jet_tau8_sd,   "jet_tau8_sd[4][nJet]/F");
+  T->Branch("jet_tau1",   &jet_tau1,   "jet_tau1[nJet][4]/F");
+  T->Branch("jet_tau2",   &jet_tau2,   "jet_tau2[nJet][4]/F");
+  T->Branch("jet_tau3",   &jet_tau3,   "jet_tau3[nJet][4]/F");
+  T->Branch("jet_tau4",   &jet_tau4,   "jet_tau4[nJet][4]/F");
+  T->Branch("jet_tau5",   &jet_tau5,   "jet_tau5[nJet][4]/F");
+  T->Branch("jet_tau6",   &jet_tau6,   "jet_tau6[nJet][4]/F");
+  T->Branch("jet_tau7",   &jet_tau7,   "jet_tau7[nJet][4]/F");
+  T->Branch("jet_tau8",   &jet_tau8,   "jet_tau8[nJet][4]/F");
+  T->Branch("jet_tau1_sd",   &jet_tau1_sd,   "jet_tau1_sd[nJet][4]/F");
+  T->Branch("jet_tau2_sd",   &jet_tau2_sd,   "jet_tau2_sd[nJet][4]/F");
+  T->Branch("jet_tau3_sd",   &jet_tau3_sd,   "jet_tau3_sd[nJet][4]/F");
+  T->Branch("jet_tau4_sd",   &jet_tau4_sd,   "jet_tau4_sd[nJet][4]/F");
+  T->Branch("jet_tau5_sd",   &jet_tau5_sd,   "jet_tau5_sd[nJet][4]/F");
+  T->Branch("jet_tau6_sd",   &jet_tau6_sd,   "jet_tau6_sd[nJet][4]/F");
+  T->Branch("jet_tau7_sd",   &jet_tau7_sd,   "jet_tau7_sd[nJet][4]/F");
+  T->Branch("jet_tau8_sd",   &jet_tau8_sd,   "jet_tau8_sd[nJet][4]/F");
   T->Branch("jet_nc",  &jet_nc,  "jet_nc[nJet]/I");
   T->Branch("jet_ic",  &jet_ic,  "jet_ic[nJet][50]/I");
   T->Branch("jet_nsubjet",  &jet_nsubjet,  "jet_nsubjet[nJet]/I");
@@ -249,24 +249,22 @@ int main(int argc, char ** argv) {
     for ( auto x : jet_msd ) x=0.0;
 
 
-    for( unsigned int j = 0; j < kMaxNsjBeta; ++j ){
-      for ( auto x : jet_tau1    [j] )  x=0.0;
-      for ( auto x : jet_tau2    [j] )  x=0.0;
-      for ( auto x : jet_tau3    [j] )  x=0.0;
-      for ( auto x : jet_tau4    [j] )  x=0.0;
-      for ( auto x : jet_tau5    [j] )  x=0.0;
-      for ( auto x : jet_tau6    [j] )  x=0.0;
-      for ( auto x : jet_tau7    [j] )  x=0.0;
-      for ( auto x : jet_tau8    [j] )  x=0.0;
-      for ( auto x : jet_tau1_sd [j] )  x=0.0;
-      for ( auto x : jet_tau2_sd [j] )  x=0.0;
-      for ( auto x : jet_tau3_sd [j] )  x=0.0;
-      for ( auto x : jet_tau4_sd [j] )  x=0.0;
-      for ( auto x : jet_tau5_sd [j] )  x=0.0;
-      for ( auto x : jet_tau6_sd [j] )  x=0.0;
-      for ( auto x : jet_tau7_sd [j] )  x=0.0;
-      for ( auto x : jet_tau8_sd [j] )  x=0.0;
-    }
+    for ( auto x : jet_tau1    ) for ( unsigned int j = 0; j < kMaxNsjBeta; ++j )  x[j]=0.0;
+    for ( auto x : jet_tau2    ) for ( unsigned int j = 0; j < kMaxNsjBeta; ++j )  x[j]=0.0;
+    for ( auto x : jet_tau3    ) for ( unsigned int j = 0; j < kMaxNsjBeta; ++j )  x[j]=0.0;
+    for ( auto x : jet_tau4    ) for ( unsigned int j = 0; j < kMaxNsjBeta; ++j )  x[j]=0.0;
+    for ( auto x : jet_tau5    ) for ( unsigned int j = 0; j < kMaxNsjBeta; ++j )  x[j]=0.0;
+    for ( auto x : jet_tau6    ) for ( unsigned int j = 0; j < kMaxNsjBeta; ++j )  x[j]=0.0;
+    for ( auto x : jet_tau7    ) for ( unsigned int j = 0; j < kMaxNsjBeta; ++j )  x[j]=0.0;
+    for ( auto x : jet_tau8    ) for ( unsigned int j = 0; j < kMaxNsjBeta; ++j )  x[j]=0.0;
+    for ( auto x : jet_tau1_sd ) for ( unsigned int j = 0; j < kMaxNsjBeta; ++j )  x[j]=0.0;
+    for ( auto x : jet_tau2_sd ) for ( unsigned int j = 0; j < kMaxNsjBeta; ++j )  x[j]=0.0;
+    for ( auto x : jet_tau3_sd ) for ( unsigned int j = 0; j < kMaxNsjBeta; ++j )  x[j]=0.0;
+    for ( auto x : jet_tau4_sd ) for ( unsigned int j = 0; j < kMaxNsjBeta; ++j )  x[j]=0.0;
+    for ( auto x : jet_tau5_sd ) for ( unsigned int j = 0; j < kMaxNsjBeta; ++j )  x[j]=0.0;
+    for ( auto x : jet_tau6_sd ) for ( unsigned int j = 0; j < kMaxNsjBeta; ++j )  x[j]=0.0;
+    for ( auto x : jet_tau7_sd ) for ( unsigned int j = 0; j < kMaxNsjBeta; ++j )  x[j]=0.0;
+    for ( auto x : jet_tau8_sd ) for ( unsigned int j = 0; j < kMaxNsjBeta; ++j )  x[j]=0.0;
     for ( auto x : jet_nc ) x=0;
     for ( auto x : jet_nsubjet ) x=0;
     for ( auto i = 0; i < kMaxJet; ++i )
@@ -447,7 +445,6 @@ int main(int argc, char ** argv) {
 	      double beta_nsj = 0.5 + 0.5*nsj_index;
 	      const Int_t max_nsj = 8;
 
-
 	      fastjet::contrib::Nsubjettiness nSub1_beta1(1, fastjet::contrib::OnePass_WTA_KT_Axes(), fastjet::contrib::UnnormalizedMeasure(beta_nsj));
 	      fastjet::contrib::Nsubjettiness nSub2_beta1(2, fastjet::contrib::OnePass_WTA_KT_Axes(), fastjet::contrib::UnnormalizedMeasure(beta_nsj));
 	      fastjet::contrib::Nsubjettiness nSub3_beta1(3, fastjet::contrib::OnePass_WTA_KT_Axes(), fastjet::contrib::UnnormalizedMeasure(beta_nsj));
@@ -457,23 +454,23 @@ int main(int argc, char ** argv) {
 	      fastjet::contrib::Nsubjettiness nSub7_beta1(7, fastjet::contrib::OnePass_WTA_KT_Axes(), fastjet::contrib::UnnormalizedMeasure(beta_nsj));
 	      fastjet::contrib::Nsubjettiness nSub8_beta1(8, fastjet::contrib::OnePass_WTA_KT_Axes(), fastjet::contrib::UnnormalizedMeasure(beta_nsj));
 
-	      jet_tau1[nsj_index][nJet] = nSub1_beta1(*ijet);
-	      jet_tau2[nsj_index][nJet] = nSub2_beta1(*ijet);
-	      jet_tau3[nsj_index][nJet] = nSub3_beta1(*ijet);
-	      jet_tau4[nsj_index][nJet] = nSub4_beta1(*ijet);
-	      jet_tau5[nsj_index][nJet] = nSub5_beta1(*ijet);
-	      jet_tau6[nsj_index][nJet] = nSub6_beta1(*ijet);
-	      jet_tau7[nsj_index][nJet] = nSub7_beta1(*ijet);
-	      jet_tau8[nsj_index][nJet] = nSub8_beta1(*ijet);
+	      jet_tau1[nJet][nsj_index] = nSub1_beta1(*ijet);
+	      jet_tau2[nJet][nsj_index] = nSub2_beta1(*ijet);
+	      jet_tau3[nJet][nsj_index] = nSub3_beta1(*ijet);
+	      jet_tau4[nJet][nsj_index] = nSub4_beta1(*ijet);
+	      jet_tau5[nJet][nsj_index] = nSub5_beta1(*ijet);
+	      jet_tau6[nJet][nsj_index] = nSub6_beta1(*ijet);
+	      jet_tau7[nJet][nsj_index] = nSub7_beta1(*ijet);
+	      jet_tau8[nJet][nsj_index] = nSub8_beta1(*ijet);
 
-	      jet_tau1_sd[nsj_index][nJet] = nSub1_beta1(sd_jet);
-	      jet_tau2_sd[nsj_index][nJet] = nSub2_beta1(sd_jet);
-	      jet_tau3_sd[nsj_index][nJet] = nSub3_beta1(sd_jet);
-	      jet_tau4_sd[nsj_index][nJet] = nSub4_beta1(sd_jet);
-	      jet_tau5_sd[nsj_index][nJet] = nSub5_beta1(sd_jet);
-	      jet_tau6_sd[nsj_index][nJet] = nSub6_beta1(sd_jet);
-	      jet_tau7_sd[nsj_index][nJet] = nSub7_beta1(sd_jet);
-	      jet_tau8_sd[nsj_index][nJet] = nSub8_beta1(sd_jet);
+	      jet_tau1_sd[nJet][nsj_index] = nSub1_beta1(sd_jet);
+	      jet_tau2_sd[nJet][nsj_index] = nSub2_beta1(sd_jet);
+	      jet_tau3_sd[nJet][nsj_index] = nSub3_beta1(sd_jet);
+	      jet_tau4_sd[nJet][nsj_index] = nSub4_beta1(sd_jet);
+	      jet_tau5_sd[nJet][nsj_index] = nSub5_beta1(sd_jet);
+	      jet_tau6_sd[nJet][nsj_index] = nSub6_beta1(sd_jet);
+	      jet_tau7_sd[nJet][nsj_index] = nSub7_beta1(sd_jet);
+	      jet_tau8_sd[nJet][nsj_index] = nSub8_beta1(sd_jet);
 	    }
 
 	  }
