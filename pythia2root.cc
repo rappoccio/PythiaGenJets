@@ -9,6 +9,7 @@
 
 // Header file to access Pythia 8 program elements.
 #include "Pythia8/Pythia.h"
+#include "Pythia8/Basics.h"
 #include "fastjet/ClusterSequence.hh"
 #include "fastjet/contrib/SoftDrop.hh"
 #include "fastjet/contrib/Nsubjettiness.hh" // In external code, this should be fastjet/contrib/Nsubjettiness.hh
@@ -39,7 +40,7 @@ protected :
 int main(int argc, char ** argv) {
 
   if ( argc < 4 ) {
-    std::cout << "usage: " << argv[0] << " config_file root_file n_events <optional: ptcut>" << std::endl;
+    std::cout << "usage: " << argv[0] << " config_file root_file n_events <optional: seed (-1 = default, 0=use time, or input your own)> <optional: ptcut>" << std::endl;
     return 0;
   }
 
@@ -53,8 +54,12 @@ int main(int argc, char ** argv) {
   char * configfile = argv[1];
   char * outfile = argv[2];
   unsigned int nEvents = atol(argv[3]);
+  long seed = -1; 
   if ( argc > 5 ) {
-    ptmin = atof( argv[4]);
+    seed = atol(argv[4]);
+  }
+  if ( argc > 6 ) {
+    ptmin = atof( argv[5]);
   }
 
 
@@ -64,6 +69,10 @@ int main(int argc, char ** argv) {
 
   // Create Pythia instance. Read config from a text file. 
   Pythia pythia;
+  char buff[1000];
+  sprintf(buff, "Random:seed = %d", seed);
+  pythia.readString("Random:setSeed = on");
+  pythia.readString(buff);
   std::ifstream config( configfile );
   while (!config.eof() ) {
     std::string line;
