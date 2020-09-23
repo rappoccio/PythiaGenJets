@@ -65,9 +65,9 @@ PROMC_LIB=./
 
 # ROOT configuration.
 ROOT_USE=true
-ROOT_BIN=/usr/local/bin/
-ROOT_INCLUDE=/usr/local/include/root
-ROOT_LIB=/usr/local/lib
+ROOT_BIN=${ROOTSYS}/bin/
+ROOT_INCLUDE=${ROOTSYS}/include/
+ROOT_LIB=${ROOTSYS}/lib/
 
 # GZIP configuration.
 GZIP_USE=false
