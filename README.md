@@ -37,6 +37,10 @@ source setup.sh
 ```
 
 
+### On Winterfell
+
+If you are running on winterfell, the bash script in the above examples should be `runDockerWinterfell.sh` instead of `runDockerCommandLine.sh` in order to mount the `/mnt` directory. 
+
 ## Running the executable from the Docker image
 
 ```
