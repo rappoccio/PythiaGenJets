@@ -4,13 +4,20 @@ Simple [PYTHIA8](http://home.thep.lu.se/Pythia/) program that uses [fastjet](htt
 
 The example generates Z+jets events where the Z decays to electron or muon pairs. The example event size is around 16 kB/event. 
 
+As of Version 1, this Docker image is based on [RIVET](https://rivet.hepforge.org). 
 
 ## Instructions:
 
 ### Example for using Jupyter Notebooks
 
 ```
-bash ./runDockerX11OS.sh srappoccio/pythia-gen-jets:latest
+bash ./runDockerCommandLine.sh 8888 srappoccio/pythia-gen-jets:latest
+```
+
+Once you are in the docker image
+
+```
+bash launch.sh
 ```
 
 Then point your local browser to [localhost](http://localhost:8888) and put in the generated token from the previous command. The examples are mounted on your Docker image under `results`. There is a previously generated $Z+$jets sample under `zjets_root.ipynb`, or you can run your own under `plot_zjets.ipynb`. 
@@ -20,11 +27,17 @@ Then point your local browser to [localhost](http://localhost:8888) and put in t
 To run on the command line with the docker image, do:
 
 ```
-bash ./runDockerCommandLine.sh srappoccio/pythia-gen-jets:latest
+bash ./runDockerCommandLine.sh 8888 srappoccio/pythia-gen-jets:latest
 ```
 
-Then subsequently, either on your machine or the docker image you just made:
+Once it brings you to the docker image:
 
+```
+source setup.sh
+```
+
+
+## Running the executable from the Docker image
 
 ```
 make pythia2root
@@ -159,6 +172,20 @@ The output TTree uses the default PYTHIA8 "Event" for the gen particle informati
       reportNumber   = "LU-TP-14-36, MCNET-14-22, CERN-PH-TH-2014-190,
                         FERMILAB-PUB-14-316-CD, DESY-14-178, SLAC-PUB-16122",
       SLACcitation   = "%%CITATION = ARXIV:1410.3012;%%"
+}
+
+@article{Bierlich:2019rhm,
+    author = "Bierlich, Christian and others",
+    title = "{Robust Independent Validation of Experiment and Theory: Rivet version 3}",
+    eprint = "1912.05451",
+    archivePrefix = "arXiv",
+    primaryClass = "hep-ph",
+    reportNumber = "MCnet-19-26",
+    doi = "10.21468/SciPostPhys.8.2.026",
+    journal = "SciPost Phys.",
+    volume = "8",
+    pages = "026",
+    year = "2020"
 }
 
 
