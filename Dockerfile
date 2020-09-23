@@ -1,18 +1,24 @@
-FROM rootproject/root-ubuntu16:6.12
+FROM hepstore/rivet-pythia
 
-ENV ROOT_VERSION=6.12/07
+## Get ROOT
+RUN ( \
+    cd /code && wget https://root.cern/download/root_v6.22.00.Linux-ubuntu20-x86_64-gcc9.3.tar.gz \
+    && tar -zxvf root_v6.22.00.Linux-ubuntu20-x86_64-gcc9.3.tar.gz \
+    && source /code/root/bin/thisroot.sh \
+    )
 
-# Run the following commands as super user (root):
-USER root
+## Install data science stuff
+RUN (\
+pip3 install jupyter ipykernel py4j google-common hdfs hdfs3 matplotlib scipy numpy \
+     scikit-learn keras tensorflow jupyter metakernel zmq \
+     lz4 notebook uproot tornado coffea pandas \
+)
 
-WORKDIR /app
-ADD . /app
-
-# Install required packages for notebooks
-RUN sudo ./install_software_root.sh
-
-# Set the python path
-ENV PYTHONPATH /app/lib/:/usr/local/lib/:/usr/local/lib/root/:/app/lib/python2.7/site-packages/
+## Install PythiaGenJets
+RUN (\
+    cd /code && git clone https://github.com/rappoccio/PythiaGenJets.git \
+    && cd PythiaGenJets && source /code/root/bin/thisroot.sh && make pythia2root && mv pythia2root /usr/bin && mv pythia2rootDct_rdict.pcm /usr/bin \
+)
 
 # Create a user that does not have root privileges 
 ARG username=physicist
@@ -36,4 +42,4 @@ USER ${username}
 EXPOSE 8888
 
 # Run notebook when the container launches
-CMD ["jupyter", "notebook", "--ip", "0.0.0.0"]
+CMD ["/bin/bash"]
