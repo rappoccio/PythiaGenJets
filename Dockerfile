@@ -4,13 +4,6 @@ RUN ( \
     mkdir /code \
     ) 
 
-## Get ROOT
-RUN ( \
-    cd /code && wget https://root.cern/download/root_v6.24.02.Linux-ubuntu20-x86_64-gcc9.3.tar.gz \
-    && tar -zxvf root_v6.24.02.Linux-ubuntu20-x86_64-gcc9.3.tar.gz \
-    && source /code/root/bin/thisroot.sh \
-    )
-
 ## Install data science stuff
 RUN (\
 pip3 install jupyter ipykernel py4j google-common hdfs hdfs3 matplotlib scipy numpy \
@@ -21,7 +14,7 @@ pip3 install jupyter ipykernel py4j google-common hdfs hdfs3 matplotlib scipy nu
 ## Install PythiaGenJets
 RUN (\
     cd /code && git clone https://github.com/rappoccio/PythiaGenJets.git \
-    && cd PythiaGenJets && source /code/root/bin/thisroot.sh && make pythia2root && mv pythia2root /usr/bin && mv pythia2rootDct_rdict.pcm /usr/bin \
+    && cd PythiaGenJets && source /usr/local/root/bin/thisroot.sh && make pythia2root && mv pythia2root /usr/bin && mv pythia2rootDct_rdict.pcm /usr/bin \
 )
 
 # Create a user that does not have root privileges 
