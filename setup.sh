@@ -1,2 +1,3 @@
 # !/bin/bash
-source /code/root/bin/thisroot.sh
+source /usr/local/root/bin/thisroot.sh 
+
