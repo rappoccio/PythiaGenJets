@@ -61,10 +61,33 @@ ifeq ($(FASTJET3_USE)$(ROOT_USE),truetrue)
 else
 	@echo "Error: $@ requires ROOT"
 endif
+
 pythia2root.so: pythia2rootDct.cc $(PREFIX_LIB)/libpythia8.a
 	$(CXX) $< -o $@ -c -w -I$(ROOT_INCLUDE) $(CXX_SHARED) $(CXX_COMMON) -pthread -std=c++11 -m64 -L$(ROOT_LIB) -lGui -lCore -lImt -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lTreePlayer -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -lMultiProc -pthread -Wl,-rpath,$(ROOT_LIB) -lm -ldl -rdynamic
 #`$(ROOT_BIN)root-config --cflags` `$(ROOT_BIN)root-config --glibs` 
 pythia2rootDct.cc: pythia2root.h pythia2rootLinkDef.h
+	export LD_LIBRARY_PATH=$$LD_LIBRARY_PATH:$(ROOT_LIB);\
+	 $(ROOT_BIN)rootcint -f $@ -c -I$(PREFIX_INCLUDE) $^
+
+
+
+
+mpt2root: $$@.cc $(PREFIX_LIB)/libpythia8.a mpt2root.so
+ifeq ($(FASTJET3_USE)$(ROOT_USE),truetrue)
+	$(CXX) $< mpt2root.so -o $@ -w -I$(ROOT_INCLUDE) -I$(FASTJET3_INCLUDE) $(CXX_COMMON)\
+	 -L$(FASTJET3_LIB) -Wl,-rpath,$(FASTJET3_LIB) -lfastjet -lRecursiveTools -lNsubjettiness -lfastjettools \
+	 `$(ROOTBIN)root-config --cflags` -Wl,-rpath,./\
+	 -Wl,-rpath,$(ROOT_LIB) `$(ROOT_BIN)root-config --glibs`
+else
+	@echo "Error: $@ requires ROOT"
+endif
+
+
+
+mpt2root.so: mpt2rootDct.cc $(PREFIX_LIB)/libpythia8.a
+	$(CXX) $< -o $@ -c -w -I$(ROOT_INCLUDE) $(CXX_SHARED) $(CXX_COMMON) -pthread -std=c++11 -m64 -L$(ROOT_LIB) -lGui -lCore -lImt -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lTreePlayer -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -lMultiProc -pthread -Wl,-rpath,$(ROOT_LIB) -lm -ldl -rdynamic
+#`$(ROOT_BIN)root-config --cflags` `$(ROOT_BIN)root-config --glibs` 
+mpt2rootDct.cc: mpt2root.h mpt2rootLinkDef.h
 	export LD_LIBRARY_PATH=$$LD_LIBRARY_PATH:$(ROOT_LIB);\
 	 $(ROOT_BIN)rootcint -f $@ -c -I$(PREFIX_INCLUDE) $^
 
@@ -81,4 +104,4 @@ clean:
 	rm -f test[0-9][0-9][0-9]; rm -f *.dat;\
 	rm -f weakbosons.lhe; rm -f Pythia8.promc; rm -f hist.root;\
 	rm -f *~; rm -f \#*; rm -f core*; rm -f *Dct.*; rm -f *.so;\
-	rm -f pythia2root
+	rm -f pythia2root mpt2root
