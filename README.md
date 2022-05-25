@@ -10,15 +10,18 @@ There are several examples, including
 
 This Docker image is based on [RIVET](https://rivet.hepforge.org). 
 
-## Instructions:
+## Download the docker image
 
-You can run *EITHER* from the jupyter notebook *OR* from the command line. You do not need to do both. 
-
-### Example for using Jupyter Notebooks
 
 ```
 bash ./runDockerCommandLine.sh 8888 srappoccio/pythia-gen-jets:latest
 ```
+
+## Set up your environment
+
+You can run *EITHER* from the jupyter notebook *OR* from the command line. You do not need to do both. 
+
+### Using Jupyter Notebooks
 
 Once you are in the docker image
 
@@ -29,7 +32,7 @@ source launch.sh
 
 Then point your local browser to [localhost](http://localhost:8888) and put in the generated token from the previous command. 
 
-### Command line
+### Using the command line
 
 To run on the command line with the docker image, do:
 
@@ -44,11 +47,11 @@ source setup.sh
 ```
 
 
-### On Winterfell
+### Note for running On Winterfell
 
 If you are running on winterfell, the bash script in the above examples should be `runDockerWinterfell.sh` instead of `runDockerCommandLine.sh` in order to mount the `/mnt` directory. 
 
-## Running the executable from the Docker image command line
+## Running the `pythia2root` executable. 
 
 If you're on the command line, you can generate events with `pythia2root`. Several of the notebooks also contain **commented-out** configurations that can be run directly. 
 
