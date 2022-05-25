@@ -2,11 +2,17 @@
 
 Simple [PYTHIA8](http://home.thep.lu.se/Pythia/) program that uses [fastjet](http://fastjet.fr) to generate events, precluster them with the anti-kt algorithm with R = 0.8, and write events with the leading jet satisfying pt > 170 GeV to a [ROOT](http://root.cern.ch) [TTree](https://root.cern.ch/doc/v608/classTTree.html).
 
-The example generates Z+jets events where the Z decays to electron or muon pairs. The example event size is around 16 kB/event. 
+There are several examples, including
+   * $Z$+jets events where the Z decays to electron or muon pairs (`zjets.cfg`)
+   * QCD multijets events (`qcd_multijet.cfg`)
+   * KK gravitons with various masses decaying to $Z$ boson pairs (`gravkk_zz_1TeV.cfg`, also for 2 and 3 TeV)
+   * SM $ZZ$ production (`zz.cfg`)
 
-As of Version 1, this Docker image is based on [RIVET](https://rivet.hepforge.org). 
+This Docker image is based on [RIVET](https://rivet.hepforge.org). 
 
 ## Instructions:
+
+You can run *EITHER* from the jupyter notebook *OR* from the command line. You do not need to do both. 
 
 ### Example for using Jupyter Notebooks
 
@@ -17,10 +23,11 @@ bash ./runDockerCommandLine.sh 8888 srappoccio/pythia-gen-jets:latest
 Once you are in the docker image
 
 ```
-bash launch.sh
+source setup.sh
+source launch.sh
 ```
 
-Then point your local browser to [localhost](http://localhost:8888) and put in the generated token from the previous command. The examples are mounted on your Docker image under `results`. There is a previously generated $Z+$jets sample under `zjets_root.ipynb`, or you can run your own under `plot_zjets.ipynb`. 
+Then point your local browser to [localhost](http://localhost:8888) and put in the generated token from the previous command. 
 
 ### Command line
 
@@ -41,20 +48,21 @@ source setup.sh
 
 If you are running on winterfell, the bash script in the above examples should be `runDockerWinterfell.sh` instead of `runDockerCommandLine.sh` in order to mount the `/mnt` directory. 
 
-## Running the executable from the Docker image
+## Running the executable from the Docker image command line
+
+If you're on the command line, you can generate events with `pythia2root`. Several of the notebooks also contain **commented-out** configurations that can be run directly. 
 
 ```
-make pythia2root
-./pythia2root 
+pythia2root 
 ```
 Output:
 ```
-usage: ./pythia2root config_file root_file n_events
+usage: pythia2root config_file root_file n_events
 ```
 
 Example:
 ```
-./pythia2root test_run_all.cfg test.root 1000
+pythia2root test_run_all.cfg test.root 1000
 ```
 
 ## Selections for the jets
