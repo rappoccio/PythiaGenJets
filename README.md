@@ -10,49 +10,62 @@ There are several examples, including
 
 This Docker image is based on [RIVET](https://rivet.hepforge.org). 
 
-## Instructions:
+## Instructions to launch container
 
-You can run *EITHER* from the jupyter notebook *OR* from the command line. You do not need to do both. 
-
-### Example for using Jupyter Notebooks
+To launch the container from your host computer, execute this command: 
 
 ```
 bash ./runDockerCommandLine.sh 8888 srappoccio/pythia-gen-jets:latest
 ```
 
-Once you are in the docker image
+You then have a few options when you are running in the docker container: 
+
+### Running ROOT
+
+Once you are in the docker image, to run ROOT: 
 
 ```
 source setup.sh
+root -l
+```
+
+If you want to run `jupyter` with ROOT,
+
+```
+root --notebook
+```
+
+Then point your local browser to [localhost](http://localhost:8888) and put in the generated token from the previous command.
+
+### Running coffea
+
+Once you are in the docker image, to run jupyter with `scipy` ecosystem things like `coffea` and `tensorflow`, make sure you have **NOT** run `setup.sh` (this will set up ROOT) and instead: 
+
+```
 source launch.sh
 ```
-
-Then point your local browser to [localhost](http://localhost:8888) and put in the generated token from the previous command. 
-
-### Command line
-
-To run on the command line with the docker image, do:
-
-```
-bash ./runDockerCommandLine.sh 8888 srappoccio/pythia-gen-jets:latest
-```
-
-Once it brings you to the docker image:
-
-```
-source setup.sh
-```
-
 
 ### On Winterfell
 
 If you are running on winterfell, the bash script in the above examples should be `runDockerWinterfell.sh` instead of `runDockerCommandLine.sh` in order to mount the `/mnt` directory. 
 
-## Running the executable from the Docker image command line
+### Common configuration problem with ROOT
+
+Since ROOT (the software package) only allows the "root" linux user in the docker container, there are often problems with running the jupyter version in ROOT. This may give na error like
+
+```
+PermissionError: [Errno 13] Permission denied: '/usr/local/root/etc/notebook/migrated'
+```
+
+If this is the case, log out and log in, but **DO NOT** source the `setup.sh` script. 
+
+
+## Running the `pythia2root` executable from the Docker image command line
 
 If you're on the command line, you can generate events with `pythia2root`. Several of the notebooks also contain **commented-out** configurations that can be run directly. 
 
 ```
+source setup.sh
 pythia2root 
 ```
 Output:
