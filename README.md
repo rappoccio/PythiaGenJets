@@ -10,6 +10,7 @@ There are several examples, including
 
 This Docker image is based on [RIVET](https://rivet.hepforge.org). 
 
+
 ## Instructions to launch container
 
 To launch the container from your host computer, execute this command: 
@@ -17,6 +18,7 @@ To launch the container from your host computer, execute this command:
 ```
 bash ./runDockerCommandLine.sh 8888 srappoccio/pythia-gen-jets:latest
 ```
+
 
 You then have a few options when you are running in the docker container: 
 
@@ -44,6 +46,7 @@ Once you are in the docker image, to run jupyter with `scipy` ecosystem things l
 ```
 source launch.sh
 ```
+
 
 ### On Winterfell
 
