@@ -34,7 +34,7 @@ root -l
 If you want to run `jupyter` with ROOT,
 
 ```
-root --notebook
+root --notebook --no-browser --ip 0.0.0.0
 ```
 
 Then point your local browser to [localhost](http://localhost:8888) and put in the generated token from the previous command.
