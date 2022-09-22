@@ -63,7 +63,7 @@ else
 endif
 
 pythia2root.so: pythia2rootDct.cc $(PREFIX_LIB)/libpythia8.a
-	$(CXX) $< -o $@ -c -w -I$(ROOT_INCLUDE) $(CXX_SHARED) $(CXX_COMMON) -pthread -std=c++11 -m64 -L$(ROOT_LIB) -lGui -lCore -lImt -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lTreePlayer -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -lMultiProc -pthread -Wl,-rpath,$(ROOT_LIB) -lm -ldl -rdynamic
+	$(CXX) $< -o $@ -c -w -I$(ROOT_INCLUDE) $(CXX_SHARED) $(CXX_COMMON) -pthread -std=c++17 -m64 -L$(ROOT_LIB) -lGui -lCore -lImt -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lTreePlayer -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -lMultiProc -pthread -Wl,-rpath,$(ROOT_LIB) -lm -ldl -rdynamic
 #`$(ROOT_BIN)root-config --cflags` `$(ROOT_BIN)root-config --glibs` 
 pythia2rootDct.cc: pythia2root.h pythia2rootLinkDef.h
 	export LD_LIBRARY_PATH=$$LD_LIBRARY_PATH:$(ROOT_LIB);\
@@ -85,7 +85,7 @@ endif
 
 
 mpt2root.so: mpt2rootDct.cc $(PREFIX_LIB)/libpythia8.a
-	$(CXX) $< -o $@ -c -w -I$(ROOT_INCLUDE) $(CXX_SHARED) $(CXX_COMMON) -pthread -std=c++11 -m64 -L$(ROOT_LIB) -lGui -lCore -lImt -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lTreePlayer -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -lMultiProc -pthread -Wl,-rpath,$(ROOT_LIB) -lm -ldl -rdynamic
+	$(CXX) $< -o $@ -c -w -I$(ROOT_INCLUDE) $(CXX_SHARED) $(CXX_COMMON) -pthread -std=c++17 -m64 -L$(ROOT_LIB) -lGui -lCore -lImt -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lTreePlayer -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -lMultiProc -pthread -Wl,-rpath,$(ROOT_LIB) -lm -ldl -rdynamic
 #`$(ROOT_BIN)root-config --cflags` `$(ROOT_BIN)root-config --glibs` 
 mpt2rootDct.cc: mpt2root.h mpt2rootLinkDef.h
 	export LD_LIBRARY_PATH=$$LD_LIBRARY_PATH:$(ROOT_LIB);\

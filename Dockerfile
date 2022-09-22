@@ -8,7 +8,7 @@ RUN ( \
 RUN (\
 pip3 install jupyter ipykernel py4j google-common hdfs hdfs3 matplotlib scipy numpy \
      scikit-learn keras tensorflow jupyter metakernel zmq \
-     lz4 notebook uproot tornado coffea pandas neural-structured-learning fastjet \
+     lz4 notebook uproot tornado coffea pandas neural-structured-learning \
 )
 
 ## Install PythiaGenJets
