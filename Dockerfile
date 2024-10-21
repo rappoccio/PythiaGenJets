@@ -21,9 +21,9 @@ RUN (\
 
 # Create a user that does not have root privileges 
 ARG username=physicist
-ENV MY_UID 1000
+ENV MY_UID=1000
 RUN useradd --create-home --home-dir /home/${username} --uid ${MY_UID} ${username}
-ENV HOME /home/${username}
+ENV HOME=/home/${username}
 
 # Set the cwd to /home/{username}
 WORKDIR /home/${username}
